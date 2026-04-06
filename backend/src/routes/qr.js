@@ -20,7 +20,7 @@ router.post('/generate', verifyToken, async (req, res) => {
     }
 
     const shortId = crypto.randomBytes(4).toString('hex');
-    const backendUrl = process.env.BACKEND_URL || 'https://crunchyho-3kbk.onrender.com';
+    const backendUrl = process.env.BACKEND_URL || 'https://dp-qr.onrender.com';
     const redirectUrl = `${backendUrl}/api/qr/s/${shortId}`;
     
     // Generate QR Code pointing to our tracker
