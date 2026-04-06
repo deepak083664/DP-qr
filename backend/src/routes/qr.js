@@ -77,7 +77,7 @@ router.get('/s/:shortId', async (req, res) => {
     if (!qr) return res.status(404).send('QR Code tracking not found');
 
     if (qr.expiresAt && qr.expiresAt < new Date()) {
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const frontendUrl = process.env.FRONTEND_URL || 'https://dp-qr.vercel.app';
       return res.redirect(`${frontendUrl}/upgrade`);
     }
 
