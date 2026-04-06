@@ -7,7 +7,9 @@ const userSchema = new mongoose.Schema({
   isPaid: { type: Boolean, default: false },
   planType: { type: String, enum: ['free', '1_month', '3_months', '1_year'], default: 'free' },
   planExpiry: { type: Date },
-  isAdmin: { type: Boolean, default: false }
+  isAdmin: { type: Boolean, default: false },
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
