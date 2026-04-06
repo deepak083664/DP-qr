@@ -65,7 +65,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
 
 // Fallback Route for undefined endpoints (404)
-app.use('*', (req, res) => {
+app.use((req, res, next) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
