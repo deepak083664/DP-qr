@@ -4,6 +4,8 @@ const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
 const { verifyToken } = require('../middlewares/auth');
 
+const crypto = require('crypto');
+
 const router = express.Router();
 
 cloudinary.config({
@@ -19,9 +21,15 @@ router.post('/file', verifyToken, upload.single('file'), (req, res) => {
 
   const isPDF = req.file.mimetype === 'application/pdf';
   const resourceType = isPDF ? 'raw' : 'image';
+  
+  const uploadOptions = { folder: 'qr_saas_uploads', resource_type: resourceType };
+  if (isPDF) {
+    // Mobile phones need the .pdf extension to know how to open it
+    uploadOptions.public_id = crypto.randomBytes(8).toString('hex') + '.pdf';
+  }
 
   const uploadStream = cloudinary.uploader.upload_stream(
-    { folder: 'qr_saas_uploads', resource_type: resourceType },
+    uploadOptions,
     (error, result) => {
       if (error) {
         console.error("Cloudinary Error:", error);
