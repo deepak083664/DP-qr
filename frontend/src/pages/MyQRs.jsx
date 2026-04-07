@@ -16,6 +16,7 @@ const MyQRs = () => {
 
     const fetchHistory = async () => {
         try {
+            const token = localStorage.getItem('token');
             const res = await fetch(`${BASE_URL}/api/qr/history`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });

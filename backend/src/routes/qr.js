@@ -87,8 +87,43 @@ router.get('/s/:shortId', async (req, res) => {
     qr.scans += 1;
     await qr.save();
 
-    // Since the original might be a url or an uploaded cloudinary file (for image/pdf), it redirects fine.
-    res.redirect(qr.originalUrl);
+    if (qr.type === 'text') {
+      return res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>QR Text</title></head>
+        <body style="display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f8fafc;font-family:sans-serif;margin:0;">
+          <div style="background:white;padding:2rem;border-radius:1rem;box-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1);max-width:90%;width:400px;word-wrap:break-word;">
+            <p style="font-size:1.125rem;color:#334155;margin:0;white-space:pre-wrap;">${qr.originalUrl}</p>
+          </div>
+        </body>
+        </html>
+      `);
+    }
+
+    if (qr.type === 'pdf') {
+      return res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>PDF Document</title></head>
+        <body style="display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f8fafc;font-family:sans-serif;margin:0;">
+          <div style="text-align:center;background:white;padding:3rem 2rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1);max-width:90%;width:350px;">
+            <h2 style="margin:0 0 1.5rem;color:#0f172a;font-size:1.5rem;">Document Ready</h2>
+            <p style="color:#64748b;margin-bottom:2rem;">Your PDF is ready to be viewed.</p>
+            <a href="${qr.originalUrl}" style="display:inline-block;background:#3b82f6;color:white;text-decoration:none;padding:1rem 2rem;border-radius:0.75rem;font-weight:bold;font-size:1rem;box-shadow:0 4px 6px -1px rgba(59,130,246,0.5);width:100%;box-sizing:border-box;">View / Download PDF</a>
+          </div>
+        </body>
+        </html>
+      `);
+    }
+
+    let targetUrl = qr.originalUrl;
+    // Fix missing http:// prefix for URLs to prevent relative path error tracking
+    if (qr.type === 'url' && !/^https?:\/\//i.test(targetUrl)) {
+      targetUrl = 'https://' + targetUrl;
+    }
+
+    res.redirect(targetUrl);
   } catch (err) {
     console.error(err);
     res.status(500).send('Server Error');
