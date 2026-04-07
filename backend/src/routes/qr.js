@@ -12,7 +12,7 @@ router.post('/generate', verifyToken, async (req, res) => {
     const { type, content, fgColor, bgColor, logoUrl } = req.body;
     
     // Check Free Plan Limits
-    if (req.user.planType === 'free') {
+    if (req.user.planType === 'free' && !req.user.isAdmin) {
       const qrCount = await QRHistory.countDocuments({ userId: req.user._id });
       if (qrCount >= 1) {
         return res.status(403).json({ error: 'Free plan limit reached. Upgrade to generate more.' });
@@ -34,7 +34,7 @@ router.post('/generate', verifyToken, async (req, res) => {
     });
 
     let expiresAt = null;
-    if (req.user.planType === 'free') {
+    if (req.user.planType === 'free' && !req.user.isAdmin) {
       expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
     }
 
@@ -59,15 +59,6 @@ router.post('/generate', verifyToken, async (req, res) => {
   }
 });
 
-// GET QR History
-router.get('/history', verifyToken, async (req, res) => {
-  try {
-    const history = await QRHistory.find({ userId: req.user._id }).sort({ createdAt: -1 });
-    res.json({ history });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch history' });
-  }
-});
 
 // GET Redirect Interceptor for scanning
 router.get('/s/:shortId', async (req, res) => {

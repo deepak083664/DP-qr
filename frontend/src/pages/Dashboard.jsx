@@ -23,24 +23,6 @@ const Dashboard = () => {
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   
-  // History
-  const [history, setHistory] = useState([]);
-
-  useEffect(() => {
-    fetchHistory();
-  }, [user]);
-
-  const fetchHistory = async () => {
-    if (!user) return;
-    try {
-      const { data } = await axios.get(`${BASE_URL}/api/qr/history`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      setHistory(data.history);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   const handleGenerate = async () => {
     if (!content && !file) return;
@@ -79,7 +61,6 @@ const Dashboard = () => {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setQrCodeUrl(res.data.qrCodeUrl);
-      fetchHistory(); // refresh history
     } catch (err) {
       if (err.response?.status === 403) {
         toast.error(err.response.data.error || 'Limit reached');
@@ -91,7 +72,7 @@ const Dashboard = () => {
     }
   };
 
-  const planName = user?.planType ? user.planType.replace('_', ' ').toUpperCase() : 'FREE';
+  const planName = user?.isAdmin ? 'ADMIN (PREMIUM)' : (user?.planType ? user.planType.replace('_', ' ').toUpperCase() : 'FREE');
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full bg-slate-50 min-h-screen">
@@ -104,7 +85,7 @@ const Dashboard = () => {
             Current Plan: <span className="font-bold text-primary">{planName}</span>
           </p>
         </div>
-        {(user?.planType === 'free' || !user?.planType) && (
+        {(user?.planType === 'free' || !user?.planType) && !user?.isAdmin && (
           <Link to="/pricing" className="mt-4 sm:mt-0 inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold py-2.5 px-5 rounded-xl transition-all shadow-md">
             <Crown className="w-4 h-4" /> Upgrade to Premium
           </Link>
@@ -167,7 +148,7 @@ const Dashboard = () => {
             )}
           </div>
 
-          {(user?.planType !== 'free') && (
+          {(user?.planType !== 'free' || user?.isAdmin) && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
               <div>
                 <label className="block text-sm text-slate-500 mb-2 font-medium">Foreground Color</label>
@@ -232,46 +213,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* History Section */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-md">
-        <h2 className="text-2xl font-bold mb-6 text-slate-900 flex items-center gap-2">
-          <BarChart2 className="w-6 h-6 text-primary" /> QR Analytics & History
-        </h2>
-        
-        {history.length === 0 ? (
-          <p className="text-slate-500 text-center py-8">No QR codes generated yet.</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {history.map((h, i) => (
-              <div key={i} className="border border-slate-200 rounded-2xl p-5 hover:shadow-lg transition-all">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="bg-primary/10 rounded-lg p-2.5">
-                    <QrCode className="w-6 h-6 text-primary" />
-                  </div>
-                  <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 uppercase">
-                    {h.type}
-                  </span>
-                </div>
-                
-                <h4 className="font-semibold text-slate-900 truncate mb-1" title={h.originalUrl}>
-                  {h.originalUrl}
-                </h4>
-                
-                <div className="flex items-center justify-between text-sm text-slate-500 mt-4 border-t border-slate-100 pt-4">
-                  <div className="flex items-center gap-1.5">
-                    <BarChart2 className="w-4 h-4" />
-                    <span className="font-semibold text-slate-700">{h.scans} Scans</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4" />
-                    <span>{new Date(h.createdAt).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
 
     </div>
   );
