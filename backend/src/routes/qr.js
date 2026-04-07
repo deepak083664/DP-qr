@@ -45,7 +45,7 @@ router.post('/generate', verifyToken, async (req, res) => {
     let expiresAt = null;
     if (!req.user.isAdmin) {
       if (req.user.planType === 'free') {
-        expiresAt = new Date(Date.now() + 1 * 60 * 1000); // 1 minute (for testing)
+        expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
       } else if (req.user.planType === '1_month') {
         expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
       } else if (req.user.planType === '3_months') {
@@ -85,6 +85,38 @@ router.get('/history', verifyToken, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch history' });
+  }
+});
+
+// Edit existing QR Code content
+router.put('/edit/:shortId', verifyToken, async (req, res) => {
+  try {
+    const { shortId } = req.params;
+    const { content } = req.body;
+
+    if (!content) {
+      return res.status(400).json({ error: 'Content is required' });
+    }
+
+    if (req.user.planType === 'free' && !req.user.isAdmin) {
+      return res.status(403).json({ error: 'Editing is a premium feature. Please upgrade your plan.' });
+    }
+
+    const qr = await QRHistory.findOne({ shortId, userId: req.user._id });
+    if (!qr) {
+      return res.status(404).json({ error: 'QR Code not found or unauthorized' });
+    }
+
+    qr.originalUrl = content;
+    if (qr.type === 'pdf' || qr.type === 'image') {
+      qr.dataUrl = content;
+    }
+    
+    await qr.save();
+    res.status(200).json({ message: 'QR Code updated successfully', qr });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update QR Code' });
   }
 });
 
