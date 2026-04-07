@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { User, Mail, Shield, Calendar, CreditCard } from 'lucide-react';
+import { User, Mail, Shield, Calendar, CreditCard, QrCode } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Profile = () => {

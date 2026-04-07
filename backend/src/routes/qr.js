@@ -92,7 +92,7 @@ router.get('/history', verifyToken, async (req, res) => {
 router.put('/edit/:shortId', verifyToken, async (req, res) => {
   try {
     const { shortId } = req.params;
-    const { content } = req.body;
+    const { content, type } = req.body;
 
     if (!content) {
       return res.status(400).json({ error: 'Content is required' });
@@ -107,7 +107,9 @@ router.put('/edit/:shortId', verifyToken, async (req, res) => {
       return res.status(404).json({ error: 'QR Code not found or unauthorized' });
     }
 
+    if (type) qr.type = type;
     qr.originalUrl = content;
+    
     if (qr.type === 'pdf' || qr.type === 'image') {
       qr.dataUrl = content;
     }
@@ -117,6 +119,27 @@ router.put('/edit/:shortId', verifyToken, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to update QR Code' });
+  }
+});
+
+// Delete a QR Code
+router.delete('/delete/:shortId', verifyToken, async (req, res) => {
+  try {
+    const { shortId } = req.params;
+    
+    if (req.user.planType === 'free' && !req.user.isAdmin) {
+      return res.status(403).json({ error: 'Deleting is a premium feature. Please upgrade your plan.' });
+    }
+
+    const deletedQr = await QRHistory.findOneAndDelete({ shortId, userId: req.user._id });
+    if (!deletedQr) {
+      return res.status(404).json({ error: 'QR Code not found or unauthorized' });
+    }
+
+    res.status(200).json({ message: 'QR Code deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete QR Code' });
   }
 });
 

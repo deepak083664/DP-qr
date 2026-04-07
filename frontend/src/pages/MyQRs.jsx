@@ -2,10 +2,43 @@ import React, { useEffect, useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { BASE_URL } from '../config';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, Download, ExternalLink, Calendar, QrCode, Edit3, X, Upload, Loader2, Crown } from 'lucide-react';
+import { Trash2, Download, Calendar, QrCode, Edit3, X, Upload, Loader2, Crown, Link as LinkIcon, Type, Image as ImageIcon, FileText, ExternalLink, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+
+const ExpiryDisplay = ({ expiresAt }) => {
+    const [timeLeft, setTimeLeft] = useState('');
+    
+    useEffect(() => {
+        if (!expiresAt) return;
+        
+        const updateTimer = () => {
+            const now = new Date().getTime();
+            const distance = new Date(expiresAt).getTime() - now;
+            
+            if (distance <= 0) {
+                setTimeLeft('Expired');
+            } else if (distance < 24 * 60 * 60 * 1000) {
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+            } else {
+                setTimeLeft(null);
+            }
+        };
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+        return () => clearInterval(interval);
+    }, [expiresAt]);
+
+    if (!expiresAt) return <span className="text-emerald-600 font-semibold">Never Expires</span>;
+    if (timeLeft === 'Expired') return <span className="text-red-500 font-bold">Expired</span>;
+    if (timeLeft) return <span className="text-amber-500 font-mono font-bold animate-pulse">Expires in {timeLeft}</span>;
+    return <span>Exp: {new Date(expiresAt).toLocaleDateString()}</span>;
+};
 
 const MyQRs = () => {
     const { token, user } = useContext(AuthContext);
@@ -14,9 +47,13 @@ const MyQRs = () => {
     
     // Edit State
     const [editingQr, setEditingQr] = useState(null);
+    const [editType, setEditType] = useState('url');
     const [editContent, setEditContent] = useState('');
     const [editFile, setEditFile] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
+
+    // Delete State
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         fetchHistory();
@@ -49,8 +86,27 @@ const MyQRs = () => {
         link.click();
     };
 
+    const handleDelete = async (shortId) => {
+        if (!window.confirm("Are you sure you want to delete this QR Code entirely?")) return;
+        
+        setIsDeleting(true);
+        try {
+            await axios.delete(`${BASE_URL}/api/qr/delete/${shortId}`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            });
+            toast.success("QR Code deleted successfully");
+            fetchHistory();
+        } catch (err) {
+            console.error(err);
+            toast.error(err.response?.data?.error || "Failed to delete QR code");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
     const openEditModal = (qr) => {
         setEditingQr(qr);
+        setEditType(qr.type || 'url');
         setEditContent(qr.type === 'url' || qr.type === 'text' ? qr.originalUrl : '');
         setEditFile(null);
     };
@@ -59,11 +115,11 @@ const MyQRs = () => {
         if (!editingQr) return;
         
         // Validation
-        if ((editingQr.type === 'pdf' || editingQr.type === 'image') && !editFile) {
-            toast.error(`Please select a new ${editingQr.type} file`);
+        if ((editType === 'pdf' || editType === 'image') && !editFile && editType !== editingQr.type) {
+            toast.error(`Please select a ${editType} file`);
             return;
         }
-        if ((editingQr.type === 'url' || editingQr.type === 'text') && !editContent) {
+        if ((editType === 'url' || editType === 'text') && !editContent) {
             toast.error('Content cannot be empty');
             return;
         }
@@ -72,8 +128,8 @@ const MyQRs = () => {
         let finalContent = editContent;
 
         try {
-            // Upload new file if needed
-            if ((editingQr.type === 'pdf' || editingQr.type === 'image') && editFile) {
+            // Upload new file if needed (if user provided a new file, OR if they changed type to a file and provided a file)
+            if ((editType === 'pdf' || editType === 'image') && editFile) {
                 const formData = new FormData();
                 formData.append('file', editFile);
                 const uploadRes = await axios.post(`${BASE_URL}/api/upload/file`, formData, {
@@ -83,10 +139,14 @@ const MyQRs = () => {
                     }
                 });
                 finalContent = uploadRes.data.url;
+            } else if ((editType === 'pdf' || editType === 'image') && !editFile && editType === editingQr.type) {
+                // Kept old file untouched
+                finalContent = editingQr.originalUrl;
             }
 
             // Save via PUT
             await axios.put(`${BASE_URL}/api/qr/edit/${editingQr.shortId}`, {
+                type: editType,
                 content: finalContent
             }, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -136,11 +196,11 @@ const MyQRs = () => {
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: index * 0.05 }}
-                            className="glass p-5 rounded-2xl border border-slate-100 hover:border-primary/30 transition-all group relative overflow-hidden"
+                            className="glass p-5 rounded-2xl border border-slate-100 hover:border-primary/30 transition-all group relative overflow-hidden flex flex-col"
                         >
-                            <div className="flex gap-4">
-                                <div className="w-24 h-24 bg-white rounded-xl p-2 shadow-sm flex-shrink-0">
-                                    <img src={item.qrCodeUrl} alt="QR" className="w-full h-full object-contain" />
+                            <div className="flex gap-4 mb-4">
+                                <div className="w-24 h-24 bg-white rounded-xl p-2 shadow-sm flex-shrink-0 cursor-pointer" onClick={() => window.open(item.originalUrl, '_blank')}>
+                                    <img src={item.qrCodeUrl} alt="QR" className="w-full h-full object-contain hover:scale-105 transition-transform" />
                                 </div>
                                 <div className="flex-1 min-w-0 flex flex-col justify-between">
                                     <div>
@@ -161,47 +221,53 @@ const MyQRs = () => {
                                             {item.originalUrl || 'QR Code'}
                                         </h3>
                                         <p className="text-[11px] text-slate-400 flex items-center gap-1">
-                                            <ExternalLink className="w-3 h-3" />
                                             Scans: <span className="font-bold text-primary">{item.scans}</span>
                                         </p>
-                                    </div>
-                                    
-                                    <div className="mt-3 flex gap-2">
-                                        <button 
-                                            onClick={() => handleDownload(item.qrCodeUrl, item.shortId)}
-                                            className="flex-[2] bg-slate-50 hover:bg-primary hover:text-white transition-colors py-2 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 border border-slate-200"
-                                        >
-                                            <Download className="w-3 h-3" /> Download
-                                        </button>
-                                        
-                                        {(user?.planType !== 'free' || user?.isAdmin) ? (
-                                            <button 
-                                                onClick={() => openEditModal(item)}
-                                                className="flex-1 bg-slate-50 hover:bg-purple-500 hover:text-white transition-colors py-2 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 border border-slate-200 text-slate-600"
-                                                title="Edit Destination"
-                                            >
-                                                <Edit3 className="w-3 h-3" />
-                                            </button>
-                                        ) : (
-                                            <Link 
-                                                to="/pricing"
-                                                className="flex-1 bg-amber-50 hover:bg-amber-500 hover:text-white transition-colors py-2 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 border border-amber-200 text-amber-600"
-                                                title="Upgrade to Edit"
-                                            >
-                                                <Crown className="w-3 h-3" />
-                                            </Link>
-                                        )}
-
-                                        <a 
-                                            href={item.originalUrl} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
-                                            className="flex-1 flex items-center justify-center bg-slate-50 hover:bg-slate-200 transition-colors rounded-lg text-slate-600 border border-slate-200"
-                                        >
-                                            <ExternalLink className="w-3 h-3" />
-                                        </a>
+                                        <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-1">
+                                            <Clock className="w-3 h-3" />
+                                            <ExpiryDisplay expiresAt={item.expiresAt} />
+                                        </p>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div className="flex gap-2 mt-auto pt-3 border-t border-slate-100">
+                                <button 
+                                    onClick={() => handleDownload(item.qrCodeUrl, item.shortId)}
+                                    className="flex-[2] bg-slate-50 hover:bg-primary hover:text-white transition-colors py-2 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 border border-slate-200"
+                                >
+                                    <Download className="w-3 h-3" /> Download
+                                </button>
+                                
+                                {(user?.planType !== 'free' || user?.isAdmin) ? (
+                                    <>
+                                        <button 
+                                            onClick={() => openEditModal(item)}
+                                            className="flex-1 bg-slate-50 hover:bg-purple-500 hover:text-white transition-colors py-2 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 border border-slate-200 text-slate-600"
+                                            title="Edit QR Options"
+                                        >
+                                            <Edit3 className="w-3 h-3" />
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDelete(item.shortId)}
+                                            disabled={isDeleting}
+                                            className="flex-1 flex items-center justify-center bg-slate-50 hover:bg-red-500 hover:text-white transition-colors py-2 rounded-lg text-slate-600 border border-slate-200 disabled:opacity-50"
+                                            title="Delete QR"
+                                        >
+                                            <Trash2 className="w-3 h-3" />
+                                        </button>
+                                    </>
+                                ) : (
+                                    <div className="flex gap-2 flex-1">
+                                        <Link 
+                                            to="/pricing"
+                                            className="flex-1 bg-amber-50 hover:bg-amber-500 hover:text-white transition-colors py-2 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 border border-amber-200 text-amber-600"
+                                            title="Upgrade to Edit/Delete"
+                                        >
+                                            <Crown className="w-3 h-3" /> Get Pro
+                                        </Link>
+                                    </div>
+                                )}
                             </div>
                         </motion.div>
                     ))}
@@ -223,9 +289,9 @@ const MyQRs = () => {
                             initial={{ opacity: 0, scale: 0.95, y: 20 }} 
                             animate={{ opacity: 1, scale: 1, y: 0 }} 
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="bg-white rounded-3xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden"
+                            className="bg-white rounded-3xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden max-h-[90vh] overflow-y-auto"
                         >
-                            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 sticky top-0 z-20">
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-900">Edit QR Destination</h3>
                                     <p className="text-xs text-slate-500 mt-1 uppercase font-semibold">Dynamic Content Update</p>
@@ -241,22 +307,40 @@ const MyQRs = () => {
                             <div className="p-6 space-y-6">
                                 <div className="bg-blue-50 text-blue-800 text-sm p-4 rounded-xl border border-blue-100/50">
                                     <p className="font-semibold">Your QR image stays exactly the same!</p>
-                                    <p className="mt-1 opacity-90 text-xs">Anyone scanning this existing QR code will instantly be redirected to the new content you set below.</p>
+                                    <p className="mt-1 opacity-90 text-xs">Anyone scanning this existing QR code will instantly be redirected to the new content and format you set below.</p>
                                 </div>
 
-                                <div className="space-y-2">
+                                <div className="space-y-4">
+                                    <label className="text-sm font-semibold text-slate-700">Content Type</label>
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 bg-slate-100 p-1.5 rounded-xl">
+                                        {[
+                                            { id: 'url', icon: LinkIcon, label: 'URL' },
+                                            { id: 'text', icon: Type, label: 'Text' },
+                                            { id: 'image', icon: ImageIcon, label: 'Image' },
+                                            { id: 'pdf', icon: FileText, label: 'PDF' }
+                                        ].map(tab => (
+                                            <button
+                                                key={tab.id}
+                                                onClick={() => { setEditType(tab.id); setEditContent(''); setEditFile(null); }}
+                                                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-medium transition-all ${editType === tab.id ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-900 hover:bg-white/50'}`}
+                                            >
+                                                <tab.icon className="w-3 h-3 shrink-0" /> <span className="text-xs whitespace-nowrap">{tab.label}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+
                                     <label className="text-sm font-semibold text-slate-700">
-                                        {editingQr.type === 'url' ? 'New Target URL' : 
-                                         editingQr.type === 'text' ? 'New Display Text' : 
-                                         `Upload New ${editingQr.type.toUpperCase()} File`}
+                                        {editType === 'url' ? 'New Target URL' : 
+                                         editType === 'text' ? 'New Display Text' : 
+                                         `Upload New ${editType.toUpperCase()} File`}
                                     </label>
                                     
-                                    {(editingQr.type === 'url' || editingQr.type === 'text') ? (
+                                    {(editType === 'url' || editType === 'text') ? (
                                         <input 
                                             type="text" 
                                             value={editContent}
                                             onChange={(e) => setEditContent(e.target.value)}
-                                            placeholder={`Enter new ${editingQr.type}...`}
+                                            placeholder={`Enter new ${editType}...`}
                                             className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 text-slate-900 transition-all placeholder:text-slate-400"
                                             autoFocus
                                         />
@@ -264,7 +348,7 @@ const MyQRs = () => {
                                         <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center gap-3 hover:border-primary/50 transition-colors bg-slate-50 cursor-pointer relative">
                                             <input 
                                                 type="file" 
-                                                accept={editingQr.type === 'image' ? 'image/*' : 'application/pdf'}
+                                                accept={editType === 'image' ? 'image/*' : 'application/pdf'}
                                                 onChange={(e) => setEditFile(e.target.files[0])}
                                                 className="absolute inset-0 opacity-0 cursor-pointer"
                                             />
@@ -273,15 +357,16 @@ const MyQRs = () => {
                                             </div>
                                             <div className="text-center pointer-events-none">
                                                 <span className="text-slate-600 font-medium">Click to select new file</span>
-                                                <p className="text-xs text-slate-400 mt-1">Replacing current {editingQr.type}</p>
+                                                <p className="text-xs text-slate-400 mt-1">Replacing current content with {editType}</p>
                                             </div>
                                             {editFile && <span className="text-sm font-bold text-green-600 mt-2 bg-green-50 px-3 py-1 rounded-md max-w-[200px] truncate">{editFile.name}</span>}
+                                            {(!editFile && editType === editingQr.type) && <span className="text-sm font-medium text-slate-500 mt-2">Currently using existing {editType}</span>}
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50">
+                            <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 sticky bottom-0 z-20">
                                 <button 
                                     onClick={() => setEditingQr(null)}
                                     disabled={isSaving}
@@ -291,7 +376,7 @@ const MyQRs = () => {
                                 </button>
                                 <button 
                                     onClick={handleSaveEdit}
-                                    disabled={isSaving || ((editingQr.type === 'pdf' || editingQr.type === 'image') && !editFile) || ((editingQr.type === 'text' || editingQr.type === 'url') && !editContent)}
+                                    disabled={isSaving || ((editType === 'pdf' || editType === 'image') && !editFile && editType !== editingQr.type) || ((editType === 'text' || editType === 'url') && !editContent)}
                                     className="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold transition-all shadow-md shadow-primary/20 flex items-center gap-2 disabled:opacity-50"
                                 >
                                     {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Changes'}
