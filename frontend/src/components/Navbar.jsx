@@ -55,6 +55,7 @@ const Navbar = () => {
           <>
             <Link to="/dashboard" className="text-sm font-medium hover:text-primary transition-colors">Dashboard</Link>
             <Link to="/profile" className="text-sm font-medium hover:text-primary transition-colors">Profile</Link>
+            <Link to="/my-qrs" className="text-sm font-medium hover:text-primary transition-colors">My QRs</Link>
             <button onClick={handleLogout} className="flex items-center gap-2 text-sm text-red-500 hover:text-red-400 transition-colors ml-4">
               <LogOut className="w-4 h-4" /> Logout
             </button>
@@ -92,6 +93,7 @@ const Navbar = () => {
                 <Link to="/" onClick={() => setIsOpen(false)} className="text-2xl font-semibold text-slate-900 hover:text-primary transition-colors">Home</Link>
                 <Link to="/dashboard" onClick={() => setIsOpen(false)} className="text-2xl font-semibold text-slate-900 hover:text-primary transition-colors">Dashboard</Link>
                 <Link to="/profile" onClick={() => setIsOpen(false)} className="text-2xl font-semibold text-slate-900 hover:text-primary transition-colors">Profile</Link>
+                <Link to="/my-qrs" onClick={() => setIsOpen(false)} className="text-2xl font-semibold text-slate-900 hover:text-primary transition-colors">My QRs</Link>
                 <Link to="/#pricing" onClick={() => setIsOpen(false)} className="text-2xl font-bold gradient-text">Upgrade Pro</Link>
                 <button onClick={handleLogout} className="flex items-center gap-3 text-2xl text-red-600 font-semibold mt-4 pt-4 border-t border-slate-100/50">
                   <LogOut className="w-6 h-6" /> Logout

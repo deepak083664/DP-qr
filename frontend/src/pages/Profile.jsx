@@ -40,6 +40,11 @@ const Profile = () => {
               <Shield className="w-5 h-5 text-slate-400" />
               <span>Role: {user?.isAdmin ? 'Admin' : 'User'}</span>
             </div>
+            
+            <Link to="/my-qrs" className="mt-4 flex items-center justify-between p-4 bg-primary/5 hover:bg-primary/10 text-primary border border-primary/20 rounded-xl transition-all font-semibold">
+              <span className="flex items-center gap-3"><QrCode className="w-5 h-5" /> View My QR History</span>
+              <span className="text-xl">→</span>
+            </Link>
           </div>
         </div>
 

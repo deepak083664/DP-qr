@@ -23,6 +23,7 @@ import Upgrade from './pages/Upgrade';
 import PaymentSuccess from './pages/PaymentSuccess';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import MyQRs from './pages/MyQRs';
 
 function App() {
   return (
@@ -55,6 +56,11 @@ function App() {
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="/my-qrs" element={
+                <ProtectedRoute>
+                  <MyQRs />
                 </ProtectedRoute>
               } />
               <Route path="/admin-login" element={<AdminLogin />} />

@@ -59,6 +59,18 @@ router.post('/generate', verifyToken, async (req, res) => {
   }
 });
 
+// Fetch scan history of a user
+router.get('/history', verifyToken, async (req, res) => {
+  try {
+    const history = await QRHistory.find({ userId: req.user._id })
+      .sort({ createdAt: -1 }); // Newest first
+    res.status(200).json(history);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch history' });
+  }
+});
+
 
 // GET Redirect Interceptor for scanning
 router.get('/s/:shortId', async (req, res) => {
