@@ -1,0 +1,76 @@
+[
+  {
+    "_id": "69d240a355b98a1eb0049cb3",
+    "name": "Ganu Admin",
+    "email": "ganu9955171746@gmail.com",
+    "password": "$2b$10$e8CQQiV9EPDLxPs8I5ybi.t0ZZRSrjsS9T7HGaPMLz7/wPErLXbo6",
+    "isPaid": true,
+    "isAdmin": true,
+    "createdAt": "2026-04-05T10:59:47.143Z",
+    "updatedAt": "2026-04-07T03:00:37.220Z",
+    "__v": 0,
+    "planType": "free",
+    "resetPasswordExpires": "2026-04-07T04:00:37.217Z",
+    "resetPasswordToken": "ab4f1a6cef80ef00879be8b2770bdb6b65c003874ef645bbf4eee986413c1861"
+  },
+  {
+    "planType": "free",
+    "_id": "69d3189609a5d266305a2d35",
+    "name": "user1",
+    "email": "Outfithoo@gmail.com",
+    "password": "$2b$10$GDtFlbpSYRZLQX6dKzuZIuyfp/0E3veWjegbj..8EZQHa62ZyiGk6",
+    "isPaid": false,
+    "isAdmin": false,
+    "createdAt": "2026-04-06T02:21:10.337Z",
+    "updatedAt": "2026-04-06T02:21:10.337Z",
+    "__v": 0
+  },
+  {
+    "_id": "69d323ed212591edbb6d606f",
+    "name": "Test User",
+    "email": "testuser_1775444972816@test.com",
+    "password": "$2b$10$Iiqd.yU.v14K6HLDSwlq8.icQS7/F/G9nwGyMD6SgxjPPfLnA4OUK",
+    "isPaid": false,
+    "planType": "free",
+    "isAdmin": false,
+    "createdAt": "2026-04-06T03:09:33.179Z",
+    "updatedAt": "2026-04-06T03:09:33.179Z",
+    "__v": 0
+  },
+  {
+    "_id": "69d32568212591edbb6d6071",
+    "name": "user2",
+    "email": "admin@example.com",
+    "password": "$2b$10$RpxLeTYW2VWyIUwiVaTfRu.kr6CnVBN/UJ7z.AH.earmvKmAbN4W.",
+    "isPaid": false,
+    "planType": "free",
+    "isAdmin": false,
+    "createdAt": "2026-04-06T03:15:52.702Z",
+    "updatedAt": "2026-04-06T03:15:52.702Z",
+    "__v": 0
+  },
+  {
+    "_id": "69d3276992ffbc49d28e255d",
+    "name": "user3",
+    "email": "tsdashanana@gmail.com",
+    "password": "$2b$10$9sO6E1b4x3cJdDv/tlRk8O8BFTsLn89hqbaez.T3H6Uee2zszXC.2",
+    "isPaid": false,
+    "planType": "free",
+    "isAdmin": false,
+    "createdAt": "2026-04-06T03:24:25.923Z",
+    "updatedAt": "2026-04-06T03:24:25.923Z",
+    "__v": 0
+  },
+  {
+    "_id": "69d3556747d0ed9767d41cee",
+    "name": "Hsh",
+    "email": "ganuyu9955171746@gmail.com",
+    "password": "$2b$10$z29LUA22uiaeg2cgSn4uNeVvMe1yeRGCI4PDhvlxoVICfvOweMnsm",
+    "isPaid": false,
+    "planType": "free",
+    "isAdmin": false,
+    "createdAt": "2026-04-06T06:40:39.610Z",
+    "updatedAt": "2026-04-06T06:40:39.610Z",
+    "__v": 0
+  }
+]

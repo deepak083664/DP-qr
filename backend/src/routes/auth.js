@@ -11,7 +11,7 @@ const router = express.Router();
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email: new RegExp('^' + email + '$', 'i') });
     if (user) return res.status(400).json({ error: 'User already exists' });
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -28,7 +28,7 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: new RegExp('^' + email + '$', 'i') });
     if (!user) return res.status(400).json({ error: 'Invalid credentials' });
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -49,7 +49,7 @@ router.get('/me', verifyToken, (req, res) => {
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: new RegExp('^' + email + '$', 'i') });
     if (!user) return res.status(404).json({ error: 'User with this email does not exist' });
 
     const token = crypto.randomBytes(32).toString('hex');
@@ -64,19 +64,24 @@ router.post('/forgot-password', async (req, res) => {
     console.log('----------------------------------------\n');
 
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS
-        }
-      });
-      await transporter.sendMail({
-        from: `"DP QR Support" <${process.env.EMAIL_USER}>`,
-        to: user.email,
-        subject: 'Password Reset Request',
-        text: `You requested a password reset. Please click on the following link to reset your password:\n\n${resetUrl}\n\nIf you did not request this, please ignore this email.\n`
-      });
+      try {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+          }
+        });
+        await transporter.sendMail({
+          from: `"DP QR Support" <${process.env.EMAIL_USER}>`,
+          to: user.email,
+          subject: 'Password Reset Request',
+          text: `You requested a password reset. Please click on the following link to reset your password:\n\n${resetUrl}\n\nIf you did not request this, please ignore this email.\n`
+        });
+      } catch (emailErr) {
+        console.error('Email sending failed:', emailErr.message);
+        return res.status(500).json({ error: 'SMTP Error: Failed to send email. If you are the admin, please use a Gmail App Password in your .env file instead of a normal password.' });
+      }
     }
 
     res.status(200).json({ message: 'If the email exists, a reset link has been sent (check server logs if using mock).' });
