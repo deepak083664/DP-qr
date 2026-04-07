@@ -3,7 +3,7 @@ import { AuthContext } from '../context/AuthContext';
 import { BASE_URL } from '../config';
 import { motion } from 'framer-motion';
 import { Trash2, Download, ExternalLink, Calendar, QrCode } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
 const MyQRs = () => {
     const { token } = useContext(AuthContext);
