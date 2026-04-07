@@ -94,7 +94,7 @@ const Navbar = () => {
                 <Link to="/dashboard" onClick={() => setIsOpen(false)} className="text-2xl font-semibold text-slate-900 hover:text-primary transition-colors">Dashboard</Link>
                 <Link to="/profile" onClick={() => setIsOpen(false)} className="text-2xl font-semibold text-slate-900 hover:text-primary transition-colors">Profile</Link>
                 <Link to="/my-qrs" onClick={() => setIsOpen(false)} className="text-2xl font-semibold text-slate-900 hover:text-primary transition-colors">My QRs</Link>
-                <Link to="/#pricing" onClick={() => setIsOpen(false)} className="text-2xl font-bold gradient-text">Upgrade Pro</Link>
+                <Link to="/pricing" onClick={() => setIsOpen(false)} className="text-2xl font-bold gradient-text">Upgrade Pro</Link>
                 <button onClick={handleLogout} className="flex items-center gap-3 text-2xl text-red-600 font-semibold mt-4 pt-4 border-t border-slate-100/50">
                   <LogOut className="w-6 h-6" /> Logout
                 </button>
@@ -102,7 +102,7 @@ const Navbar = () => {
             ) : (
               <>
                 <Link to="/" onClick={() => setIsOpen(false)} className="text-2xl font-semibold text-slate-900 hover:text-primary transition-colors">Home</Link>
-                <Link to="/#pricing" onClick={() => setIsOpen(false)} className="text-2xl font-bold gradient-text">Upgrade Options</Link>
+                <Link to="/pricing" onClick={() => setIsOpen(false)} className="text-2xl font-bold gradient-text">Upgrade Options</Link>
                 <Link to="/login" onClick={() => setIsOpen(false)} className="text-2xl font-semibold text-slate-900 hover:text-primary transition-colors">Login</Link>
                 <Link to="/signup" onClick={() => setIsOpen(false)} className="text-2xl font-bold bg-primary text-white px-10 py-5 rounded-2xl shadow-2xl shadow-primary/40 mt-4">Sign Up</Link>
               </>

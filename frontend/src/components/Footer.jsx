@@ -30,8 +30,21 @@ const Footer = () => {
 
 
   return (
-    <footer className="bg-white/80 border-t border-slate-200 backdrop-blur-xl pt-16 pb-8 z-20">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 text-center sm:text-left mb-12">
+    <footer className="bg-slate-50 border-t border-slate-200 pt-16 pb-8 z-20 relative overflow-hidden">
+      {/* Global Upgrade Button (Website Niche) */}
+      <div className="max-w-7xl mx-auto px-6 mb-16 relative z-10">
+        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-3xl p-8 sm:p-12 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl shadow-primary/5">
+          <div className="text-center sm:text-left">
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-2">Ready to remove all limits?</h3>
+            <p className="text-slate-600 max-w-lg">Unlock unlimited QR scans, dynamic URL editing, and premium analytical features.</p>
+          </div>
+          <Link to="/pricing" className="whitespace-nowrap bg-primary hover:bg-primary/90 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-lg hover:shadow-primary/30 flex items-center gap-2 transform hover:-translate-y-1">
+            <span className="text-lg">Upgrade to Premium</span>
+          </Link>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 text-center sm:text-left mb-12 relative z-10">
         {/* Brand Column */}
         <div className="flex flex-col gap-4 items-center sm:items-start">
           <Link to="/" className="flex items-center gap-2 mb-2">

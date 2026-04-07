@@ -11,11 +11,20 @@ router.post('/generate', verifyToken, async (req, res) => {
   try {
     const { type, content, fgColor, bgColor, logoUrl } = req.body;
     
-    // Check Free Plan Limits
-    if (req.user.planType === 'free' && !req.user.isAdmin) {
-      const qrCount = await QRHistory.countDocuments({ userId: req.user._id });
-      if (qrCount >= 1) {
-        return res.status(403).json({ error: 'Free plan limit reached. Upgrade to generate more.' });
+    // Check Plan Limits
+    if (!req.user.isAdmin) {
+      let maxLimit = null;
+      let planName = '';
+      if (req.user.planType === 'free') { maxLimit = 1; planName = 'Free'; }
+      else if (req.user.planType === '1_month') { maxLimit = 1; planName = '1 Month'; }
+      else if (req.user.planType === '3_months') { maxLimit = 3; planName = '3 Months'; }
+      else if (req.user.planType === '1_year') { maxLimit = 5; planName = '1 Year'; }
+      
+      if (maxLimit !== null) {
+        const qrCount = await QRHistory.countDocuments({ userId: req.user._id });
+        if (qrCount >= maxLimit) {
+          return res.status(403).json({ error: `${planName} plan limit reached (Max ${maxLimit} QR). Upgrade to a higher plan to generate more.` });
+        }
       }
     }
 
@@ -34,8 +43,16 @@ router.post('/generate', verifyToken, async (req, res) => {
     });
 
     let expiresAt = null;
-    if (req.user.planType === 'free' && !req.user.isAdmin) {
-      expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    if (!req.user.isAdmin) {
+      if (req.user.planType === 'free') {
+        expiresAt = new Date(Date.now() + 1 * 60 * 1000); // 1 minute (for testing)
+      } else if (req.user.planType === '1_month') {
+        expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+      } else if (req.user.planType === '3_months') {
+        expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000); // 90 days
+      } else if (req.user.planType === '1_year') {
+        expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 365 days
+      }
     }
 
     const qrRecord = new QRHistory({
@@ -101,24 +118,8 @@ router.get('/s/:shortId', async (req, res) => {
       `);
     }
 
-    if (qr.type === 'pdf') {
-      return res.send(`
-        <!DOCTYPE html>
-        <html>
-        <head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>PDF Document</title></head>
-        <body style="display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f8fafc;font-family:sans-serif;margin:0;">
-          <div style="text-align:center;background:white;padding:3rem 2rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1);max-width:90%;width:350px;">
-            <h2 style="margin:0 0 1.5rem;color:#0f172a;font-size:1.5rem;">Document Ready</h2>
-            <p style="color:#64748b;margin-bottom:2rem;">Your PDF is ready to be viewed.</p>
-            <a href="${qr.originalUrl}" style="display:inline-block;background:#3b82f6;color:white;text-decoration:none;padding:1rem 2rem;border-radius:0.75rem;font-weight:bold;font-size:1rem;box-shadow:0 4px 6px -1px rgba(59,130,246,0.5);width:100%;box-sizing:border-box;">View / Download PDF</a>
-          </div>
-        </body>
-        </html>
-      `);
-    }
-
     let targetUrl = qr.originalUrl;
-    // Fix missing http:// prefix for URLs to prevent relative path error tracking
+    // Fix missing http:// prefix for URLs
     if (qr.type === 'url' && !/^https?:\/\//i.test(targetUrl)) {
       targetUrl = 'https://' + targetUrl;
     }

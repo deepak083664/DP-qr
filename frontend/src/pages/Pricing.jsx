@@ -98,9 +98,9 @@ const Pricing = () => {
 
   const planFeatures = {
     free: { name: 'Free Plan', price: 0, features: ['Only 1 QR code', 'QR expires after 24 hours', 'No analytics', 'No edit option'] },
-    '1_month': { name: '1 Month Plan', price: plans.oneMonthPrice, features: ['Unlimited QR codes', 'No expiry', 'Basic analytics (scan count)', 'Basic customization'] },
-    '3_months': { name: '3 Months Plan', price: plans.threeMonthsPrice, isBestValue: true, features: ['Unlimited QR codes', 'No expiry', 'Advanced edit option', 'Advanced analytics (scan count)'] },
-    '1_year': { name: '1 Year Plan', price: plans.oneYearPrice, features: ['Unlimited QR codes', 'No expiry', 'Advanced edit option', 'Dedicated support'] }
+    '1_month': { name: '1 Month Plan', price: plans.oneMonthPrice, features: ['1 editable QR code', 'Valid for 1 month', 'Basic analytics', 'Basic customization'] },
+    '3_months': { name: '3 Months Plan', price: plans.threeMonthsPrice, isBestValue: true, features: ['3 editable QR codes (dynamic)', 'Valid till 3 months', 'Advanced edit option', 'QR edit, delete, track options'] },
+    '1_year': { name: '1 Year Plan', price: plans.oneYearPrice, features: ['5 editable QR codes (dynamic)', 'Valid till 1 year', 'Advanced edit option', 'QR add, delete, track options', 'Dedicated support'] }
   };
 
   return (
