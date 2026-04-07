@@ -14,9 +14,32 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB max limit to prevent DoS via memory exhaustion
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true); // Accept file
+    } else {
+      cb(new Error('Invalid file type. Only PDF, PNG, and JPEG formats are allowed.'), false); // Reject file
+    }
+  }
+});
 
-router.post('/file', verifyToken, upload.single('file'), (req, res) => {
+router.post('/file', verifyToken, (req, res, next) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({ error: 'File size too large. Maximum allowed size is 5MB.' });
+      }
+      return res.status(400).json({ error: err.message });
+    }
+    next();
+  });
+}, (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
   const isPDF = req.file.mimetype === 'application/pdf';

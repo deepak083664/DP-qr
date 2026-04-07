@@ -1,29 +1,40 @@
+import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider } from './context/AuthContext';
-import Landing from './pages/Landing';
-import About from './pages/About';
-import Terms from './pages/Terms';
-import Privacy from './pages/Privacy';
-import Contact from './pages/Contact';
-import HelpCenter from './pages/HelpCenter';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Dashboard from './pages/Dashboard';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from './components/ProtectedRoute';
-import Profile from './pages/Profile';
-import Admin from './pages/Admin';
-import AdminLogin from './pages/AdminLogin';
 import AdminRoute from './components/AdminRoute';
-import Pricing from './pages/Pricing';
-import Upgrade from './pages/Upgrade';
-import PaymentSuccess from './pages/PaymentSuccess';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import MyQRs from './pages/MyQRs';
+import { Loader2 } from 'lucide-react';
+
+// Lazy-loaded Components (Code Splitting for Performance)
+const Landing = React.lazy(() => import('./pages/Landing'));
+const About = React.lazy(() => import('./pages/About'));
+const Terms = React.lazy(() => import('./pages/Terms'));
+const Privacy = React.lazy(() => import('./pages/Privacy'));
+const Contact = React.lazy(() => import('./pages/Contact'));
+const HelpCenter = React.lazy(() => import('./pages/HelpCenter'));
+const Login = React.lazy(() => import('./pages/Login'));
+const Signup = React.lazy(() => import('./pages/Signup'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Profile = React.lazy(() => import('./pages/Profile'));
+const Admin = React.lazy(() => import('./pages/Admin'));
+const AdminLogin = React.lazy(() => import('./pages/AdminLogin'));
+const Pricing = React.lazy(() => import('./pages/Pricing'));
+const Upgrade = React.lazy(() => import('./pages/Upgrade'));
+const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess'));
+const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
+const MyQRs = React.lazy(() => import('./pages/MyQRs'));
+
+const LoadingFallback = () => (
+  <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4">
+    <Loader2 className="w-12 h-12 text-primary animate-spin" />
+    <p className="text-slate-500 font-medium animate-pulse">Loading securely...</p>
+  </div>
+);
 
 function App() {
   return (
@@ -37,42 +48,44 @@ function App() {
           
           <Navbar />
           <main className="flex-grow z-10 flex flex-col relative">
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/help-center" element={<HelpCenter />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password/:token" element={<ResetPassword />} />
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/profile" element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              } />
-              <Route path="/my-qrs" element={
-                <ProtectedRoute>
-                  <MyQRs />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin-login" element={<AdminLogin />} />
-              <Route path="/admin" element={
-                <AdminRoute>
-                  <Admin />
-                </AdminRoute>
-              } />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/upgrade" element={<Upgrade />} />
-              <Route path="/payment-success" element={<PaymentSuccess />} />
-            </Routes>
+            <Suspense fallback={<LoadingFallback />}>
+              <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/help-center" element={<HelpCenter />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password/:token" element={<ResetPassword />} />
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/my-qrs" element={
+                  <ProtectedRoute>
+                    <MyQRs />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin-login" element={<AdminLogin />} />
+                <Route path="/admin" element={
+                  <AdminRoute>
+                    <Admin />
+                  </AdminRoute>
+                } />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/upgrade" element={<Upgrade />} />
+                <Route path="/payment-success" element={<PaymentSuccess />} />
+              </Routes>
+            </Suspense>
           </main>
           <Footer />
           <Toaster theme="light" position="bottom-right" />
@@ -81,6 +94,5 @@ function App() {
     </AuthProvider>
   );
 }
-
 
 export default App;

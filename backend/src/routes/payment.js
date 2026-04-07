@@ -71,10 +71,10 @@ router.post('/verify', verifyToken, async (req, res) => {
         planExpiry: newExpiry
       });
 
-      // Remove expiry limits on existing QRs
+      // Reactivate existing QRs and set their expiry to the new plan's expiry
       await QRHistory.updateMany(
         { userId: req.user._id },
-        { $set: { expiresAt: null, planType: planId || '1_month' } }
+        { $set: { expiresAt: newExpiry, planType: planId || '1_month' } }
       );
 
       res.status(200).json({ message: "Payment verified successfully" });

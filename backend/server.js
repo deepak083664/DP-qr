@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 // Route Imports
 const authRoutes = require('./src/routes/auth');
@@ -12,8 +14,31 @@ const uploadRoutes = require('./src/routes/upload');
 
 const app = express();
 
+// Inject security headers
+app.use(helmet());
+
 // Security options: Disable x-powered-by header identifying the server
 app.disable('x-powered-by');
+
+// Global Rate Limiting (Prevent DDoS)
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 500, // Limit each IP to 500 requests per `window`
+  message: { error: 'Too many requests from this IP. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Authentication Rate Limiting (Prevent Brute Force)
+const authLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 5, // Limit each IP to 5 login/signup requests per minute
+  message: { error: 'Too many authentication attempts. Please try again in 1 minute.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(globalLimiter);
 
 // CORS Configuration
 // Allow frontend deployed on Vercel as well as local development environment
@@ -58,7 +83,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // API Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/qr', qrRoutes);
 app.use('/api/admin', adminRoutes);

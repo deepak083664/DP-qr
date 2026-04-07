@@ -5,13 +5,22 @@ const User = require('../models/User');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const { verifyToken } = require('../middlewares/auth');
+const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
 
-router.post('/register', async (req, res) => {
+router.post('/register', [
+  body('name').trim().notEmpty().withMessage('Name is required'),
+  body('email').trim().isEmail().withMessage('Please provide a valid email structure'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+], async (req, res) => {
   try {
-    const { name, password } = req.body;
-    const email = (req.body.email || '').trim();
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array()[0].msg });
+    }
+
+    const { name, password, email } = req.body;
     let user = await User.findOne({ email: new RegExp('^' + email + '$', 'i') });
     if (user) return res.status(400).json({ error: 'User already exists' });
 
@@ -26,10 +35,17 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', [
+  body('email').trim().isEmail().withMessage('Please provide a valid email format'),
+  body('password').notEmpty().withMessage('Password is required')
+], async (req, res) => {
   try {
-    const { password } = req.body;
-    const email = (req.body.email || '').trim();
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array()[0].msg });
+    }
+
+    const { password, email } = req.body;
     const user = await User.findOne({ email: new RegExp('^' + email + '$', 'i') });
     if (!user) return res.status(400).json({ error: 'User not found' });
 
