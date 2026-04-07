@@ -59,7 +59,7 @@ const Landing = () => {
           transition={{ duration: 0.7, delay: 0.2 }}
           className="mt-12 sm:mt-16 md:mt-20 relative"
         >
-          <div className="glass p-3 sm:p-4 rounded-[2rem] sm:rounded-3xl inline-block shadow-2xl relative rotate-2 hover:rotate-0 transition-all duration-500">
+          <div className="glass p-3 sm:p-4 rounded-[2rem] sm:rounded-3xl inline-block shadow-2xl relative">
             <img 
               src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://example.com" 
               alt="QR Preview" 

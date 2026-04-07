@@ -14,16 +14,17 @@ const Footer = () => {
       { name: 'API Docs', href: '#' }
     ],
     support: [
-      { name: 'Help Center', href: '#' },
-      { name: 'Privacy Policy', href: '#' },
-      { name: 'Terms of Service', href: '#' },
-      { name: 'Cookie Policy', href: '#' }
+      { name: 'About Us', href: '/about' },
+      { name: 'Terms and Conditions', href: '/terms' },
+      { name: 'Privacy Policy', href: '/privacy' },
+      { name: 'Contact Us', href: '/contact' },
+      { name: 'Help Center', href: '/help-center' }
     ],
     social: [
-      { name: 'GitHub', icon: Globe, href: 'https://github.com' },
-      { name: 'Twitter', icon: Share2, href: 'https://twitter.com' },
-      { name: 'LinkedIn', icon: MessageSquare, href: 'https://linkedin.com' },
-      { name: 'Instagram', icon: Mail, href: 'https://instagram.com' }
+      { name: 'GitHub', icon: Globe, href: 'mailto:support@dpqrgenerator.com' },
+      { name: 'Twitter', icon: Share2, href: 'mailto:support@dpqrgenerator.com' },
+      { name: 'LinkedIn', icon: MessageSquare, href: 'mailto:support@dpqrgenerator.com' },
+      { name: 'Instagram', icon: Mail, href: 'mailto:support@dpqrgenerator.com' }
     ]
   };
 
@@ -41,11 +42,8 @@ const Footer = () => {
             Empowering brands with beautifully customized QR codes for the digital age. Fast, high-res, and professional.
           </p>
           <div className="flex flex-col gap-2 mt-2">
-            <div className="flex items-center gap-2 text-slate-400 text-sm">
-              <Mail className="w-4 h-4" /> support@dpqrgenerator.com
-            </div>
-            <div className="flex items-center gap-2 text-slate-400 text-sm">
-              <MapPin className="w-4 h-4" /> Silicon Valley, CA
+            <div className="flex items-start gap-2 text-slate-400 text-sm">
+              <Mail className="w-4 h-4 shrink-0 mt-0.5" /> <span className="break-all">support@dpqrgenerator.com</span>
             </div>
           </div>
         </div>
@@ -101,10 +99,14 @@ const Footer = () => {
 
       {/* Bottom Bar */}
       <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-400 text-xs">
-        <p>© {currentYear} DP QR-generator. All rights reserved.</p>
+        <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-center sm:text-left">
+          <p>© {currentYear} DP QR-generator. All rights reserved.</p>
+          <span className="hidden sm:inline">|</span>
+          <p>Powered by <a href="https://launchliftx.com" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-primary transition-colors font-semibold">LaunchLiftX</a></p>
+        </div>
         <div className="flex gap-6">
-          <Link to="#" className="hover:text-slate-600 transition-colors">Privacy Policy</Link>
-          <Link to="#" className="hover:text-slate-600 transition-colors">Terms of Service</Link>
+          <Link to="/privacy" className="hover:text-slate-600 transition-colors">Privacy Policy</Link>
+          <Link to="/terms" className="hover:text-slate-600 transition-colors">Terms and Conditions</Link>
           <Link to="#" className="hover:text-slate-600 transition-colors">Cookies</Link>
         </div>
       </div>

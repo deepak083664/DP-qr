@@ -14,7 +14,7 @@ const Navbar = () => {
     setClickCount((prev) => {
       const newCount = prev + 1;
       if (newCount >= 5) {
-        navigate('/admin');
+        navigate('/admin-login');
         return 0;
       }
       return newCount;

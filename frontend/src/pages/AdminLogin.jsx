@@ -5,10 +5,11 @@ import { BASE_URL } from '../config';
 import { toast } from 'sonner';
 import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { Lock, Loader2, ShieldCheck } from 'lucide-react';
+import { Lock, Loader2, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 
 const AdminLogin = () => {
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -56,14 +57,21 @@ const AdminLogin = () => {
             <div className="relative">
               <Lock className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
               <input 
-                type="password" 
+                type={showPassword ? "text" : "password"} 
                 required
                 placeholder="••••••••"
-                className="w-full bg-slate-50/50 border border-slate-200 rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/5 transition-all text-slate-900 placeholder:text-slate-300"
+                className="w-full bg-slate-50/50 border border-slate-200 rounded-xl pl-12 pr-12 py-4 focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/5 transition-all text-slate-900 placeholder:text-slate-300"
                 value={password} 
                 onChange={e => setPassword(e.target.value)}
                 autoFocus
               />
+              <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-500 transition-colors p-1"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
             </div>
           </div>
 
