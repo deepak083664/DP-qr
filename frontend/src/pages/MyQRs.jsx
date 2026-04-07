@@ -248,14 +248,6 @@ const MyQRs = () => {
                                         >
                                             <Edit3 className="w-3 h-3" />
                                         </button>
-                                        <button 
-                                            onClick={() => handleDelete(item.shortId)}
-                                            disabled={isDeleting}
-                                            className="flex-1 flex items-center justify-center bg-slate-50 hover:bg-red-500 hover:text-white transition-colors py-2 rounded-lg text-slate-600 border border-slate-200 disabled:opacity-50"
-                                            title="Delete QR"
-                                        >
-                                            <Trash2 className="w-3 h-3" />
-                                        </button>
                                     </>
                                 ) : (
                                     <div className="flex gap-2 flex-1">
