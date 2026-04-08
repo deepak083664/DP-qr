@@ -187,20 +187,32 @@ router.get('/s/:shortId', async (req, res) => {
 
     if (qr.type === 'pdf') {
       try {
-        const https = require('https');
-        // Securely fetch and stream the PDF to the client with forced Inline viewing headers
-        return https.get(qr.originalUrl, (stream) => {
+        const client = qr.originalUrl.startsWith('https') ? require('https') : require('http');
+        
+        return client.get(qr.originalUrl, (response) => {
+          // If Cloudinary redirects or throws error, fallback to direct browser redirect
+          if (response.statusCode !== 200) {
+             let url = qr.originalUrl;
+             if (url.includes('cloudinary.com') && !url.includes('fl_attachment')) {
+                url += (url.includes('?') ? '&' : '?') + 'fl_attachment=false';
+             }
+             return res.redirect(url);
+          }
+
+          // Pass through all essential headers (e.g., content-length, content-encoding for gzip)
+          for (const key in response.headers) {
+            if (key.toLowerCase() !== 'content-disposition' && key.toLowerCase() !== 'content-type') {
+              res.setHeader(key, response.headers[key]);
+            }
+          }
+          
           res.setHeader('Content-Type', 'application/pdf');
           res.setHeader('Content-Disposition', 'inline; filename="DPQR_Document.pdf"');
-          stream.pipe(res);
+          
+          response.pipe(res);
         }).on('error', (e) => {
           console.error("PDF Proxy Error:", e.message);
-          // Fallback to direct redirect if streaming fails
-          let url = qr.originalUrl;
-          if (url.includes('cloudinary.com') && !url.includes('fl_attachment')) {
-             url += (url.includes('?') ? '&' : '?') + 'fl_attachment=false';
-          }
-          return res.redirect(url);
+          return res.redirect(qr.originalUrl);
         });
       } catch (err) {
         return res.redirect(qr.originalUrl);
