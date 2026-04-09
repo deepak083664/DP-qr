@@ -2,6 +2,9 @@ import { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { BASE_URL } from '../config';
 
+// Set axial defaults globally so all requests send the Secure cookies to the backend
+axios.defaults.withCredentials = true;
+
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -9,31 +12,30 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      axios.get(`${BASE_URL}/api/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+    // Rely on the HTTP-Only cookie being automatically sent via withCredentials
+    axios.get(`${BASE_URL}/api/auth/me`)
       .then(res => {
         setUser(res.data.user);
       })
       .catch(() => {
-        localStorage.removeItem('token');
+        setUser(null);
       })
       .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
   }, []);
 
-  const login = (userData, token) => {
-    localStorage.setItem('token', token);
+  const login = (userData) => {
     setUser(userData);
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
+  const logout = async () => {
+    try {
+      await axios.post(`${BASE_URL}/api/auth/logout`);
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setUser(null);
+      // Optional: window.location.href = '/' to redirect completely state-clean
+    }
   };
 
   return (

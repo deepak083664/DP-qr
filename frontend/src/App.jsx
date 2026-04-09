@@ -17,7 +17,6 @@ const Privacy = React.lazy(() => import('./pages/Privacy'));
 const Contact = React.lazy(() => import('./pages/Contact'));
 const HelpCenter = React.lazy(() => import('./pages/HelpCenter'));
 const Login = React.lazy(() => import('./pages/Login'));
-const Signup = React.lazy(() => import('./pages/Signup'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Profile = React.lazy(() => import('./pages/Profile'));
 const Admin = React.lazy(() => import('./pages/Admin'));
@@ -25,8 +24,6 @@ const AdminLogin = React.lazy(() => import('./pages/AdminLogin'));
 const Pricing = React.lazy(() => import('./pages/Pricing'));
 const Upgrade = React.lazy(() => import('./pages/Upgrade'));
 const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess'));
-const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword'));
-const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
 const MyQRs = React.lazy(() => import('./pages/MyQRs'));
 
 const LoadingFallback = () => (
@@ -57,9 +54,6 @@ function App() {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/help-center" element={<HelpCenter />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password/:token" element={<ResetPassword />} />
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
                     <Dashboard />

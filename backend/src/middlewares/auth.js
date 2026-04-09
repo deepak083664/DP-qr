@@ -2,7 +2,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const verifyToken = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
+  // Read token from cookie or Authorization header fallback
+  const token = req.cookies?.token || (req.headers.authorization?.split(' ')[1]);
   if (!token) return res.status(401).json({ error: 'Access denied, token missing' });
 
   try {

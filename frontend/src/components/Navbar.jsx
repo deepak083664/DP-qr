@@ -56,14 +56,16 @@ const Navbar = () => {
             <Link to="/dashboard" className="text-sm font-medium hover:text-primary transition-colors">Dashboard</Link>
             <Link to="/profile" className="text-sm font-medium hover:text-primary transition-colors">Profile</Link>
             <Link to="/my-qrs" className="text-sm font-medium hover:text-primary transition-colors">My QRs</Link>
+            {user.profilePic && (
+              <img src={user.profilePic} alt="Profile" className="w-8 h-8 rounded-full ml-2 border border-slate-200" />
+            )}
             <button onClick={handleLogout} className="flex items-center gap-2 text-sm text-red-500 hover:text-red-400 transition-colors ml-4">
               <LogOut className="w-4 h-4" /> Logout
             </button>
           </>
         ) : (
           <>
-            <Link to="/login" className="text-sm font-medium hover:text-primary transition-colors">Login</Link>
-            <Link to="/signup" className="text-sm font-medium text-white bg-primary px-6 py-2.5 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">Sign Up</Link>
+            <Link to="/login" className="text-sm font-medium text-white bg-primary px-6 py-2.5 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">Get Started</Link>
           </>
         )}
       </div>
@@ -103,8 +105,7 @@ const Navbar = () => {
               <>
                 <Link to="/" onClick={() => setIsOpen(false)} className="text-2xl font-semibold text-slate-900 hover:text-primary transition-colors">Home</Link>
                 <Link to="/pricing" onClick={() => setIsOpen(false)} className="text-2xl font-bold gradient-text">Upgrade Options</Link>
-                <Link to="/login" onClick={() => setIsOpen(false)} className="text-2xl font-semibold text-slate-900 hover:text-primary transition-colors">Login</Link>
-                <Link to="/signup" onClick={() => setIsOpen(false)} className="text-2xl font-bold bg-primary text-white px-10 py-5 rounded-2xl shadow-2xl shadow-primary/40 mt-4">Sign Up</Link>
+                <Link to="/login" onClick={() => setIsOpen(false)} className="text-2xl font-bold bg-primary text-white px-10 py-5 rounded-2xl shadow-2xl shadow-primary/40 mt-4">Get Started</Link>
               </>
             )}
           </motion.div>

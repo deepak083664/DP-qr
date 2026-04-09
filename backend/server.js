@@ -4,6 +4,11 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
+const passport = require('passport');
+
+// Import Passport config
+require('./src/config/passport');
 
 // Route Imports
 const authRoutes = require('./src/routes/auth');
@@ -76,6 +81,8 @@ app.use(cors({
 
 // Global Middlewares
 app.use(express.json());
+app.use(cookieParser());
+app.use(passport.initialize());
 
 // Request logging (useful for debugging in production)
 app.use((req, res, next) => {

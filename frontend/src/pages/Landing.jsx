@@ -45,7 +45,7 @@ const Landing = () => {
                 Go to Dashboard <Zap className="w-5 h-5"/>
               </Link>
             ) : (
-              <Link to="/signup" className="w-full sm:w-auto bg-primary text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-primary/90 transition-all shadow-xl shadow-primary/30 flex items-center justify-center gap-2">
+              <Link to="/login" className="w-full sm:w-auto bg-primary text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-primary/90 transition-all shadow-xl shadow-primary/30 flex items-center justify-center gap-2">
                 Get Started <Zap className="w-5 h-5"/>
               </Link>
             )}
