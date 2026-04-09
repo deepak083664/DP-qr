@@ -37,26 +37,6 @@ app.use(helmet({
 // Security options: Disable x-powered-by header identifying the server
 app.disable('x-powered-by');
 
-// Global Rate Limiting (Prevent DDoS)
-const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 500, // Limit each IP to 500 requests per `window`
-  message: { error: 'Too many requests from this IP. Please try again later.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// Authentication Rate Limiting (Prevent Brute Force)
-const authLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 5, // Limit each IP to 5 login/signup requests per minute
-  message: { error: 'Too many authentication attempts. Please try again in 1 minute.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-app.use(globalLimiter);
-
 // CORS Configuration
 // Allow frontend deployed on Vercel as well as local development environment
 const allowedOrigins = [
@@ -79,28 +59,70 @@ app.use(cors({
   credentials: true
 }));
 
-// Global Middlewares
+// ==========================================
+// 1. UPTIME MONITORING & HEALTH CHECK
+// Placed BEFORE parsers, loggers, and limiters for max speed (<50ms)
+// No database queries or heavy middleware applied here.
+// ==========================================
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
+// ==========================================
+// GLOBAL MIDDLEWARES
+// ==========================================
 app.use(express.json());
 app.use(cookieParser());
 app.use(passport.initialize());
 
 // Request logging (useful for debugging in production)
+// Bypassed for /api/health as it is handled above.
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
-// Root & Health Routes
+// ==========================================
+// RATE LIMITING
+// ==========================================
+// API Rate Limiting (General backend protection)
+const apiLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 30, // 30 requests per minute
+  message: { error: 'Too many requests. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    // Exclude Google Auth routes from limits
+    const path = req.originalUrl || req.path;
+    return path.includes('/auth/google');
+  }
+});
+
+// Authentication Rate Limiting (Strict protection against brute force)
+const authLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 15, // 15 requests per minute
+  message: { error: 'Too many authentication attempts. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    // Exclude Google Auth routes from limits
+    const path = req.originalUrl || req.path;
+    return path.includes('/auth/google');
+  }
+});
+
+// Apply API Limiter to all API routes
+app.use('/api', apiLimiter);
+
+// Root & API Root Routes
 app.get('/', (req, res) => {
   res.send('API is running 🚀');
 });
 
 app.get('/api', (req, res) => {
   res.send('API root working ✅');
-});
-
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date() });
 });
 
 // API Routes
