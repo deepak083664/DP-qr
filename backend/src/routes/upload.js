@@ -48,8 +48,7 @@ router.post('/file', verifyToken, (req, res, next) => {
   
   const uploadOptions = { folder: 'qr_saas_uploads', resource_type: resourceType };
   if (isPDF) {
-    // Mobile phones need the .pdf extension to know how to open it
-    uploadOptions.public_id = crypto.randomBytes(8).toString('hex') + '.pdf';
+    uploadOptions.public_id = crypto.randomBytes(8).toString('hex');
   }
 
   const uploadStream = cloudinary.uploader.upload_stream(

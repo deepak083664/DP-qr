@@ -133,7 +133,16 @@ const Dashboard = () => {
                   <input 
                     type="file" 
                     accept={activeTab === 'image' ? 'image/*' : 'application/pdf'}
-                    onChange={(e) => setFile(e.target.files[0])}
+                    onChange={(e) => {
+                      const selectedFile = e.target.files[0];
+                      if (selectedFile && selectedFile.size > 5 * 1024 * 1024) {
+                        toast.error('File size exceeds 5MB limit. Please choose a smaller file.');
+                        e.target.value = null; // reset input
+                        setFile(null);
+                        return;
+                      }
+                      setFile(selectedFile);
+                    }}
                     className="hidden" id="file-upload" 
                   />
                   <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center gap-3">
