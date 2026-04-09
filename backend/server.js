@@ -15,7 +15,19 @@ const uploadRoutes = require('./src/routes/upload');
 const app = express();
 
 // Inject security headers
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "https://*"],
+      fontSrc: ["'self'", "https:", "data:"],
+      connectSrc: ["'self'", "https://*", "http://*"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
 
 // Security options: Disable x-powered-by header identifying the server
 app.disable('x-powered-by');

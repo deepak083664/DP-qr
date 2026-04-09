@@ -43,7 +43,8 @@ router.post('/file', verifyToken, (req, res, next) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
   const isPDF = req.file.mimetype === 'application/pdf';
-  const resourceType = isPDF ? 'raw' : 'image';
+  // Use 'image' resource type for PDF to prevent auto-download (Cloudinary default for raw)
+  const resourceType = 'image';
   
   const uploadOptions = { folder: 'qr_saas_uploads', resource_type: resourceType };
   if (isPDF) {
