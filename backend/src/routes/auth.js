@@ -75,7 +75,7 @@ router.post('/forgot-password', async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
     await user.save();
 
-    const resetUrl = `${process.env.FRONTEND_URL || 'https://dp-qr.vercel.app'}/reset-password/${token}`;
+    const resetUrl = `${process.env.FRONTEND_URL || 'https://www.dpqr.online'}/reset-password/${token}`;
 
     console.log('\n--- PASSWORD RESET LINK (MOCK EMAIL) ---');
     console.log(`To reset password for ${email}, go to: ${resetUrl}`);

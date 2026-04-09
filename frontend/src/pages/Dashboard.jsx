@@ -11,7 +11,7 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('url');
   
   // Customization state
-  const [content, setContent] = useState('https://dpqrgenerator.com');
+  const [content, setContent] = useState('https://www.dpqr.online');
   const [fgColor, setFgColor] = useState('#000000');
   const [bgColor, setBgColor] = useState('#ffffff');
   const [logoUrl, setLogoUrl] = useState('');

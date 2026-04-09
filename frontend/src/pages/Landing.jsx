@@ -61,7 +61,7 @@ const Landing = () => {
         >
           <div className="glass p-3 sm:p-4 rounded-[2rem] sm:rounded-3xl inline-block shadow-2xl relative">
             <img 
-              src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://example.com" 
+              src="/home-qr.png" 
               alt="QR Preview" 
               className="rounded-2xl w-48 sm:w-64 h-48 sm:h-64 object-contain" 
             />

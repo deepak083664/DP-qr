@@ -56,6 +56,8 @@ app.use(globalLimiter);
 // Allow frontend deployed on Vercel as well as local development environment
 const allowedOrigins = [
   process.env.FRONTEND_URL,
+  'https://www.dpqr.online',
+  'https://dpqr.online',
   'https://dp-qr.vercel.app', 
   'http://localhost:5173',
   'https://dp-qr.onrender.com'
