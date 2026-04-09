@@ -9,11 +9,17 @@ const router = express.Router();
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 // Google OAuth callback
-router.get('/google/callback', 
-  passport.authenticate('google', { failureRedirect: process.env.FRONTEND_URL || 'http://localhost:5173', session: false }),
-  (req, res) => {
+router.get('/google/callback', (req, res, next) => {
+  passport.authenticate('google', { session: false }, (err, user, info) => {
+    const frontendUrl = 'https://www.dpqr.online'; // Enforced production URL
+    
+    if (err || !user) {
+      console.error('Google Auth Failed:', err || info);
+      return res.redirect(`${frontendUrl}/login?error=auth_failed`);
+    }
+
     // Generate JWT
-    const token = jwt.sign({ userId: req.user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     
     // Determine cookie settings based on environment
     const isProd = process.env.NODE_ENV === 'production';
@@ -21,16 +27,15 @@ router.get('/google/callback',
     // Set HTTP-only cookie
     res.cookie('token', token, {
       httpOnly: true,
-      secure: isProd,           // strictly true in prod
-      sameSite: isProd ? 'none' : 'lax', // 'none' needed for cross-domain cookies in prod (like Render to Vercel)
+      secure: isProd || process.env.NODE_ENV !== 'local', // strict in prod
+      sameSite: (isProd || process.env.NODE_ENV !== 'local') ? 'none' : 'lax', // cross-domain
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
     // Redirect to frontend dashboard
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    res.redirect(`${frontendUrl}/dashboard`);
-  }
-);
+    return res.redirect(`${frontendUrl}/dashboard`);
+  })(req, res, next);
+});
 
 // Get current user profile
 router.get('/me', verifyToken, (req, res) => {

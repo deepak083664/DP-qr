@@ -104,6 +104,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // API Routes
+app.use('/auth', authLimiter, authRoutes); // Added for strict Google Auth path matching
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/qr', qrRoutes);
