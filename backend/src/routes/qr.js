@@ -30,8 +30,15 @@ router.post('/generate', verifyToken, async (req, res) => {
 
     const shortId = crypto.randomBytes(4).toString('hex');
     const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const host = req.headers['host'] || req.get('host');
-    const backendUrl = `${protocol}://${host}`;
+    // Vercel sends x-forwarded-host, taking precedence to ensure frontend domain is used for scanning
+    const host = req.headers['x-forwarded-host'] || req.headers['host'] || req.get('host');
+    
+    // If it somehow still grabs the render URL, strictly enforce the frontend URL
+    let backendUrl = `${protocol}://${host}`;
+    if (backendUrl.includes('onrender.com')) {
+      backendUrl = process.env.FRONTEND_URL || 'https://dpqr.online';
+    }
+    
     const redirectUrl = `${backendUrl}/api/qr/s/${shortId}`;
     
     // Generate QR Code pointing to our tracker
@@ -188,7 +195,17 @@ router.get('/s/:shortId', async (req, res) => {
     }
 
     if (qr.type === 'pdf') {
-      return res.redirect(qr.originalUrl);
+      // Stream the PDF from Cloudinary through our server to mask the Cloudinary URL
+      const https = require('https');
+      return https.get(qr.originalUrl, (fileStream) => {
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'inline; filename="' + qr.shortId + '.pdf"');
+        fileStream.pipe(res);
+      }).on('error', (err) => {
+        console.error('PDF Streaming Error:', err);
+        // Fallback to redirect if streaming fails for any reason
+        res.redirect(qr.originalUrl);
+      });
     }
 
     let targetUrl = qr.originalUrl;
