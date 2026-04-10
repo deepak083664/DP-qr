@@ -1,7 +1,9 @@
 const express = require('express');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const { verifyToken } = require('../middlewares/auth');
+const User = require('../models/User');
 
 const router = express.Router();
 
@@ -40,6 +42,44 @@ router.get('/google/callback', (req, res, next) => {
 // Get current user profile
 router.get('/me', verifyToken, (req, res) => {
   res.json({ user: req.user });
+});
+
+// Admin manual login (fallback for admin password auth)
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid Admin Credentials' });
+    }
+
+    // Verify password if it exists (Google-only users might not have one)
+    if (!user.password) {
+      return res.status(400).json({ error: 'Please login with Google.' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid Admin Password' });
+    }
+
+    // Generate JWT
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const isProd = process.env.NODE_ENV === 'production';
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: isProd || process.env.NODE_ENV !== 'local',
+      sameSite: (isProd || process.env.NODE_ENV !== 'local') ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
+    res.json({ user, token });
+  } catch (err) {
+    console.error('Login Error:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 // Logout endpoint
