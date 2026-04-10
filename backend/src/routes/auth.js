@@ -32,8 +32,8 @@ router.get('/google/callback', (req, res, next) => {
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
-    // Redirect to frontend dashboard
-    return res.redirect(`${frontendUrl}/dashboard`);
+    // Redirect to frontend dashboard with token in URL to fix cross-device issues
+    return res.redirect(`${frontendUrl}/dashboard?token=${token}`);
   })(req, res, next);
 });
 

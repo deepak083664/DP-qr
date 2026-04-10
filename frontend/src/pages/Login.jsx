@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 
 const Login = () => {
   const handleGoogleLogin = () => {
-    // Explicit production URL to avoid redirect_uri_mismatch
-    window.location.href = 'https://dp-qr.onrender.com/auth/google';
+    // Explicitly use Vercel proxy to hide the Render URL backend
+    window.location.href = `${BASE_URL}/api/auth/google`;
   };
 
   return (

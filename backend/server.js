@@ -19,6 +19,9 @@ const uploadRoutes = require('./src/routes/upload');
 
 const app = express();
 
+// Trust Vercel/Render proxy headers for accurate OAuth domain resolution
+app.set('trust proxy', 1);
+
 // Inject security headers
 app.use(helmet({
   contentSecurityPolicy: {

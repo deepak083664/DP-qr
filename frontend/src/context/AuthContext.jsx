@@ -12,13 +12,32 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Rely on the HTTP-Only cookie being automatically sent via withCredentials
+    // 1. Check for token in URL parameters first (passed by backend redirect)
+    const urlParams = new URLSearchParams(window.location.search);
+    const tokenFromUrl = urlParams.get('token');
+    
+    let token = tokenFromUrl || localStorage.getItem('token');
+    
+    if (tokenFromUrl) {
+      // Clean up URL so the token isn't visible to the user
+      localStorage.setItem('token', tokenFromUrl);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    if (token) {
+      // Set default header for all future axios requests
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+
+    // Call /me endpoint using cookie OR Authorization header to fetch user info
     axios.get(`${BASE_URL}/api/auth/me`)
       .then(res => {
         setUser(res.data.user);
       })
       .catch(() => {
         setUser(null);
+        localStorage.removeItem('token');
+        delete axios.defaults.headers.common['Authorization'];
       })
       .finally(() => setLoading(false));
   }, []);
@@ -34,6 +53,8 @@ export const AuthProvider = ({ children }) => {
       console.error('Logout error:', error);
     } finally {
       setUser(null);
+      localStorage.removeItem('token');
+      delete axios.defaults.headers.common['Authorization'];
       // Optional: window.location.href = '/' to redirect completely state-clean
     }
   };
