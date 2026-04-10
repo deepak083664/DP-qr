@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { QrCode, Globe, Share2, MessageSquare, Mail, MapPin, Phone } from 'lucide-react';
+import { QrCode, Mail, Instagram, Facebook } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Footer = () => {
@@ -21,10 +21,9 @@ const Footer = () => {
       { name: 'Help Center', href: '/help-center' }
     ],
     social: [
-      { name: 'GitHub', icon: Globe, href: 'mailto:support@dpqr.online' },
-      { name: 'Twitter', icon: Share2, href: 'mailto:support@dpqr.online' },
-      { name: 'LinkedIn', icon: MessageSquare, href: 'mailto:support@dpqr.online' },
-      { name: 'Instagram', icon: Mail, href: 'mailto:support@dpqr.online' }
+      { name: 'Mail', icon: Mail, href: 'mailto:support@dpqr.online' },
+      { name: 'Instagram', icon: Instagram, href: 'https://www.instagram.com/dp_qr_generator?igsh=MWtjdjJoam15Zm8weg==' },
+      { name: 'Facebook', icon: Facebook, href: '#' }
     ]
   };
 
