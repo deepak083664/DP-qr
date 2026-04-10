@@ -32,7 +32,10 @@ router.post('/create-order', verifyToken, async (req, res) => {
     const options = {
       amount,
       currency: "INR",
-      receipt: `rcpt_${req.user._id}_${Date.now()}`,
+      receipt: `rcpt_${req.user._id}_${Date.now()}`.slice(0, 40),
+      notes: {
+        userId: req.user._id.toString()
+      }
     };
 
     const rzp = getRazorpayInstance();

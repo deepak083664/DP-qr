@@ -68,4 +68,16 @@ router.get('/stats', verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
+// Get all users for admin dashboard
+router.get('/users', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const users = await User.find({})
+      .select('name email isPaid planType planExpiry createdAt')
+      .sort({ createdAt: -1 });
+    res.json({ users });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error retrieving users' });
+  }
+});
+
 module.exports = router;
