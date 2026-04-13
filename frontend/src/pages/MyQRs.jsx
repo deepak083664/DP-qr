@@ -55,6 +55,18 @@ const MyQRs = () => {
     // Delete State
     const [isDeleting, setIsDeleting] = useState(false);
 
+    // Body scroll lock effect
+    useEffect(() => {
+        if (editingQr) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, [editingQr]);
+
     useEffect(() => {
         fetchHistory();
     }, []);
@@ -299,24 +311,24 @@ const MyQRs = () => {
             {/* Edit Modal Structural Overhaul */}
             <AnimatePresence>
                 {editingQr && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center">
-                        {/* Layer 1: Global Fixed Backdrop */}
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-50">
+                        {/* Layer 1: Global Backdrop (Dense/Solid for focus) */}
                         <motion.div 
                             initial={{ opacity: 0 }} 
                             animate={{ opacity: 1 }} 
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[101]"
-                            onClick={() => !isSaving && setEditingQr(null)}
+                            className="fixed inset-0 bg-slate-50 z-[101]"
                         />
 
-                        {/* Layer 2: Independent Scroll Surface */}
-                        <div className="fixed inset-0 overflow-y-auto z-[102] pointer-events-none flex flex-col items-center">
-                            <div className="min-h-full py-12 px-4 flex items-start justify-center w-full">
+                        {/* Layer 2: Dedicated Independent Scroll Surface */}
+                        <div className="fixed inset-0 overflow-y-auto z-[102] flex flex-col items-center">
+                            {/* Mobile-Adaptive Container */}
+                            <div className="min-h-full w-full flex items-start justify-center py-6 sm:py-12 px-0 sm:px-4">
                                 <motion.div 
-                                    initial={{ opacity: 0, scale: 0.95, y: 30 }} 
+                                    initial={{ opacity: 0, scale: 1, y: 30 }} 
                                     animate={{ opacity: 1, scale: 1, y: 0 }} 
-                                    exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                                    className="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg pointer-events-auto flex flex-col relative"
+                                    exit={{ opacity: 0, scale: 1, y: 30 }}
+                                    className="bg-white sm:rounded-[2rem] shadow-2xl w-full max-w-lg pointer-events-auto flex flex-col relative min-h-screen sm:min-h-0"
                                 >
                                     {/* Header Section (Natural Flow) */}
                                     <div className="p-6 md:p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-[2rem]">
