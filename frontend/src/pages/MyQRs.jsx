@@ -299,7 +299,7 @@ const MyQRs = () => {
             {/* Edit Modal */}
             <AnimatePresence>
                 {editingQr && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+                    <div className="fixed inset-0 z-50 flex flex-col items-center justify-start py-10 px-4 overflow-y-auto">
                         <motion.div 
                             initial={{ opacity: 0 }} 
                             animate={{ opacity: 1 }} 
@@ -311,9 +311,9 @@ const MyQRs = () => {
                             initial={{ opacity: 0, scale: 0.95, y: 20 }} 
                             animate={{ opacity: 1, scale: 1, y: 0 }} 
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="bg-white rounded-3xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden max-h-[90vh] overflow-y-auto"
+                            className="bg-white rounded-3xl shadow-2xl w-full max-w-lg relative z-10 flex flex-col mb-12"
                         >
-                            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 sticky top-0 z-20">
+                            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-900">Edit QR Destination</h3>
                                     <p className="text-xs text-slate-500 mt-1 uppercase font-semibold">Dynamic Content Update</p>
@@ -388,7 +388,7 @@ const MyQRs = () => {
                                 </div>
                             </div>
 
-                            <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 sticky bottom-0 z-20">
+                            <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 rounded-b-3xl">
                                 <button 
                                     onClick={() => setEditingQr(null)}
                                     disabled={isSaving}
