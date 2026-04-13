@@ -172,21 +172,37 @@ const MyQRs = () => {
     }
 
     return (
-        <div className="max-w-6xl mx-auto px-4 py-8 md:py-12 relative min-h-[80vh]">
-            {/* Plan Header */}
-            <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-900">My Generated <span className="gradient-text">QR Codes</span></h1>
-                    <p className="text-slate-500 mt-1 flex items-center gap-2">
-                        Plan Status: <span className="font-bold text-primary">{user?.isAdmin ? 'ADMIN (PREMIUM)' : (user?.planType ? user.planType.replace('_', ' ').toUpperCase() : 'FREE')}</span>
-                    </p>
+        <div className="max-w-6xl mx-auto px-4 py-6 md:py-10 relative min-h-[85vh]">
+            {/* Consolidated One-Layer Header */}
+            <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/80 backdrop-blur-md p-5 rounded-2xl border border-slate-200 shadow-sm sticky top-24 z-30">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                    <div>
+                        <h1 className="text-xl md:text-2xl font-bold text-slate-900 flex items-center gap-2">
+                            <QrCode className="w-6 h-6 text-primary" />
+                            My <span className="gradient-text">QRs</span>
+                        </h1>
+                    </div>
+                    <div className="h-4 w-[1px] bg-slate-200 hidden sm:block"></div>
+                    <div className="flex items-center gap-2 group">
+                        <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Status:</span>
+                        <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
+                            <div className={`w-2 h-2 rounded-full ${user?.isAdmin || user?.planType !== 'free' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400 animate-pulse'}`}></div>
+                            <span className="text-xs font-bold text-slate-700">{user?.isAdmin ? 'ADMIN' : (user?.planType ? user.planType.replace('_', ' ').toUpperCase() : 'FREE')}</span>
+                        </div>
+                    </div>
                 </div>
-                {(user?.planType === 'free' || !user?.planType) && !user?.isAdmin && (
-                    <Link to="/pricing" className="mt-4 sm:mt-0 inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold py-2.5 px-5 rounded-xl transition-all shadow-md">
-                        <Crown className="w-4 h-4" /> Upgrade to Premium
-                    </Link>
-                )}
-            </div>
+
+                <div className="flex items-center gap-3">
+                    {(user?.planType === 'free' || !user?.planType) && !user?.isAdmin && (
+                        <Link to="/pricing" className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold py-2 px-4 rounded-xl transition-all shadow-md active:scale-95">
+                            <Crown className="w-3.5 h-3.5" /> Upgrade
+                        </Link>
+                    )}
+                    <div className="text-[11px] text-slate-400 bg-slate-50 px-3 py-2 rounded-xl border border-slate-100 hidden sm:flex items-center gap-2">
+                        <Clock className="w-3.5 h-3.5" /> {history.length} Codes Created
+                    </div>
+                </div>
+            </header>
 
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}

@@ -3,20 +3,25 @@ import axios from 'axios';
 import { BASE_URL } from '../config';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { Settings, Save, Loader2, IndianRupee, Users, Activity, Crown, Mail } from 'lucide-react';
+import { Settings, Save, Loader2, IndianRupee, Users, Activity, Crown, Mail, X, ExternalLink } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 
 const Admin = () => {
   const [settings, setSettings] = useState({ oneMonthPrice: 499, threeMonthsPrice: 1299, oneYearPrice: 3999 });
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState('premium');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showOrdersModal, setShowOrdersModal] = useState(false);
+  const [loadingOrders, setLoadingOrders] = useState(false);
 
   useEffect(() => {
     fetchSettings();
     fetchStats();
     fetchUsers();
+    fetchOrders();
   }, []);
 
   const fetchSettings = async () => {
@@ -57,6 +62,21 @@ const Admin = () => {
       setUsers(data.users || []);
     } catch (error) {
       console.error('Failed to load users');
+    }
+  };
+
+  const fetchOrders = async () => {
+    setLoadingOrders(true);
+    try {
+      const token = localStorage.getItem('token');
+      const { data } = await axios.get(`${BASE_URL}/api/admin/orders`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setOrders(data.orders || []);
+    } catch (error) {
+      console.error('Failed to load orders');
+    } finally {
+      setLoadingOrders(false);
     }
   };
 
@@ -116,12 +136,19 @@ const Admin = () => {
               <span className="text-3xl font-bold text-primary">{stats.paidUsers}</span>
             </div>
 
-            <div className="glass-card p-6 flex flex-col">
-              <div className="flex items-center gap-2 text-slate-500 mb-2">
-                <Activity className="w-5 h-5" /> Est. Revenue (INR)
+            <button 
+              onClick={() => setShowOrdersModal(true)}
+              className="glass-card p-6 flex flex-col text-left hover:border-primary/50 transition-all cursor-pointer group"
+            >
+              <div className="flex items-center justify-between w-full mb-2">
+                <div className="flex items-center gap-2 text-slate-500 group-hover:text-primary transition-colors">
+                  <Activity className="w-5 h-5" /> Total Revenue (INR)
+                </div>
+                <ExternalLink className="w-4 h-4 text-slate-300 opacity-0 group-hover:opacity-100 transition-all" />
               </div>
-              <span className="text-3xl font-bold text-slate-900">₹{stats.estRevenue}</span>
-            </div>
+              <span className="text-3xl font-bold text-slate-900">₹{stats.totalRevenue || 0}</span>
+              <span className="text-[10px] text-primary font-bold mt-1 opacity-0 group-hover:opacity-100 transition-all">Click to see history</span>
+            </button>
           </div>
         )}
 
@@ -258,6 +285,101 @@ const Admin = () => {
           </div>
         </div>
       </motion.div>
+
+      {/* Transaction History Modal */}
+      <AnimatePresence>
+        {showOrdersModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowOrdersModal(false)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-4xl relative z-10 overflow-hidden max-h-[85vh] flex flex-col"
+            >
+              <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <div>
+                  <h3 className="text-2xl font-bold text-slate-900">Transaction History</h3>
+                  <p className="text-slate-500 text-sm mt-1">Detailed breakdown of all subscription payments</p>
+                </div>
+                <button 
+                  onClick={() => setShowOrdersModal(false)}
+                  className="p-3 hover:bg-slate-200 rounded-2xl transition-all text-slate-400 hover:text-slate-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-8">
+                {loadingOrders ? (
+                  <div className="flex justify-center py-12">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  </div>
+                ) : orders.length === 0 ? (
+                  <div className="text-center py-12 text-slate-500">
+                    No transactions found yet.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-separate border-spacing-y-3">
+                      <thead>
+                        <tr className="text-slate-400 text-sm font-semibold">
+                          <th className="px-4 py-2">User Details</th>
+                          <th className="px-4 py-2 text-center">Plan</th>
+                          <th className="px-4 py-2 text-center">Amount</th>
+                          <th className="px-4 py-2 text-right">Date & Time</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {orders.map((order) => (
+                          <motion.tr 
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            key={order._id} 
+                            className="bg-slate-50/50 hover:bg-slate-50 transition-colors group"
+                          >
+                            <td className="px-4 py-4 rounded-l-2xl border-y border-l border-slate-100">
+                              <div className="font-bold text-slate-900">{order.userId?.name || 'Unknown User'}</div>
+                              <div className="text-xs text-slate-500">{order.userId?.email || 'N/A'}</div>
+                            </td>
+                            <td className="px-4 py-4 text-center border-y border-slate-100">
+                              <span className="inline-flex px-3 py-1 rounded-full text-[10px] font-bold bg-primary/10 text-primary uppercase">
+                                {order.planId?.replace('_', ' ')}
+                              </span>
+                            </td>
+                            <td className="px-4 py-4 text-center border-y border-slate-100 font-bold text-slate-900">
+                              ₹{order.amount}
+                            </td>
+                            <td className="px-4 py-4 text-right rounded-r-2xl border-y border-r border-slate-100 text-sm text-slate-500">
+                              <div>{new Date(order.createdAt).toLocaleDateString()}</div>
+                              <div className="text-[10px]">{new Date(order.createdAt).toLocaleTimeString()}</div>
+                            </td>
+                          </motion.tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-8 border-t border-slate-100 bg-slate-50 flex justify-between items-center">
+                <div className="text-slate-500 text-sm">
+                  Showing <span className="font-bold text-slate-900">{orders.length}</span> transactions
+                </div>
+                <div className="text-xl font-bold text-slate-900">
+                  Total: <span className="text-primary">₹{stats.totalRevenue || 0}</span>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

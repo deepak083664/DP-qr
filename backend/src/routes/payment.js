@@ -5,6 +5,7 @@ const { verifyToken } = require('../middlewares/auth');
 const User = require('../models/User');
 const AdminSettings = require('../models/AdminSettings');
 const QRHistory = require('../models/QRHistory');
+const Order = require('../models/Order');
 
 const router = express.Router();
 
@@ -73,6 +74,28 @@ router.post('/verify', verifyToken, async (req, res) => {
         planType: planId || '1_month',
         planExpiry: newExpiry
       });
+
+      // Record the order for revenue tracking
+      try {
+        const settings = await AdminSettings.findOne() || { oneMonthPrice: 499, threeMonthsPrice: 1299, oneYearPrice: 3999 };
+        let paidAmount = settings.oneMonthPrice;
+        if (planId === '3_months') paidAmount = settings.threeMonthsPrice;
+        if (planId === '1_year') paidAmount = settings.oneYearPrice;
+
+        const newOrder = new Order({
+          userId: req.user._id,
+          razorpayOrderId: razorpay_order_id,
+          razorpayPaymentId: razorpay_payment_id,
+          amount: paidAmount,
+          planId: planId || '1_month',
+          status: 'completed'
+        });
+        await newOrder.save();
+      } catch (orderErr) {
+        console.error("Order Record Error:", orderErr);
+        // We don't fail the whole request because the payment was successful 
+        // and user was updated, but we log the error.
+      }
 
       // Reactivate existing QRs and set their expiry to the new plan's expiry
       await QRHistory.updateMany(

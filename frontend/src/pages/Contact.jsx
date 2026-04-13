@@ -35,8 +35,8 @@ const Contact = () => {
             <p className="text-slate-500 text-sm mb-2">
               Our friendly team is here to help you 24/7. Drop us an email anytime.
             </p>
-            <a href="mailto:support.dpqrgenerator@gmail.com" className="text-primary font-semibold text-base sm:text-lg break-all hover:underline transition-all px-2">
-              support.dpqrgenerator@gmail.com
+            <a href="mailto:Support.dpqrgenerator@gmail.com" className="text-primary font-semibold text-base sm:text-lg break-all hover:underline transition-all px-2">
+              Support.dpqrgenerator@gmail.com
             </a>
           </motion.div>
 
@@ -53,7 +53,7 @@ const Contact = () => {
             <p className="text-slate-500 text-sm mb-2">
               Join our community or send us a direct message on our social platforms.
             </p>
-            <a href="mailto:support.dpqrgenerator@gmail.com" className="text-emerald-600 font-semibold text-lg hover:underline transition-all">
+            <a href="mailto:Support.dpqrgenerator@gmail.com" className="text-emerald-600 font-semibold text-lg hover:underline transition-all">
               @DPQRGenerator
             </a>
           </motion.div>
@@ -86,7 +86,7 @@ const Contact = () => {
             For direct inquiries regarding custom API setup, enterprise solutions, or billing issues, email us directly. We guarantee a response within 24 hours.
           </p>
           <a 
-            href="mailto:support.dpqrgenerator@gmail.com"
+            href="mailto:Support.dpqrgenerator@gmail.com"
             className="inline-block bg-primary text-white font-bold py-4 px-10 rounded-xl relative z-10 hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/40 transform hover:-translate-y-1"
           >
             Email Support Team

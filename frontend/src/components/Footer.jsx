@@ -58,7 +58,7 @@ const Footer = () => {
       { name: 'Help Center', href: '/help-center' }
     ],
     social: [
-      { name: 'Mail', icon: Mail, href: 'mailto:support@dpqr.online' },
+      { name: 'Mail', icon: Mail, href: 'mailto:Support.dpqrgenerator@gmail.com' },
       { name: 'Instagram', icon: Instagram, href: 'https://www.instagram.com/dp_qr_generator?igsh=MWtjdjJoam15Zm8weg==' },
       { name: 'Facebook', icon: Facebook, href: 'https://www.facebook.com/share/1B57oKPnY5/' }
     ]
@@ -95,7 +95,7 @@ const Footer = () => {
           </p>
           <div className="flex flex-col gap-2 mt-2">
             <div className="flex items-start gap-2 text-slate-400 text-sm">
-              <Mail className="w-4 h-4 shrink-0 mt-0.5" /> <span className="break-all">support@dpqr.online</span>
+              <Mail className="w-4 h-4 shrink-0 mt-0.5" /> <span className="break-all">Support.dpqrgenerator@gmail.com</span>
             </div>
           </div>
         </div>
