@@ -40,8 +40,8 @@ function App() {
         <ScrollToTop />
         <div className="min-h-screen flex flex-col relative overflow-x-hidden bg-slate-50">
           {/* Global Background Glow */}
-          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary/10 blur-[120px] rounded-full pointer-events-none" />
+          <div className="fixed top-[-10%] left-[-10%] w-[50vw] max-w-[500px] aspect-square bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
+          <div className="fixed bottom-[-10%] right-[-10%] w-[50vw] max-w-[500px] aspect-square bg-secondary/10 blur-[120px] rounded-full pointer-events-none" />
           
           <Navbar />
           <main className="flex-grow z-10 flex flex-col relative">
