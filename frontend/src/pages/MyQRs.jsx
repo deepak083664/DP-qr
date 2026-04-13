@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { BASE_URL } from '../config';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, Download, Calendar, QrCode, Edit3, X, Upload, Loader2, Crown, Link as LinkIcon, Type, Image as ImageIcon, FileText, ExternalLink, Clock } from 'lucide-react';
+import { Trash2, Download, Calendar, QrCode, Edit3, X, Upload, Loader2, Crown, Link as LinkIcon, Type, Image as ImageIcon, FileText, ExternalLink, Clock, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
