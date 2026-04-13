@@ -45,13 +45,13 @@ router.put('/settings', verifyToken, verifyAdmin, async (req, res) => {
 router.get('/stats', verifyToken, verifyAdmin, async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
-    const paidUsers = await User.countDocuments({ isPaid: true });
+    const paidUsers = await User.countDocuments({ isPaid: true, isAdmin: { $ne: true } });
     
     // Revenue is hard to calculate exactly without OrderHistory, 
-    // we return approximated metrics based on planTypes
-    const oneMonth = await User.countDocuments({ planType: '1_month' });
-    const threeMonth = await User.countDocuments({ planType: '3_months' });
-    const oneYear = await User.countDocuments({ planType: '1_year' });
+    // we return approximated metrics based on planTypes (excluding admins)
+    const oneMonth = await User.countDocuments({ planType: '1_month', isAdmin: { $ne: true } });
+    const threeMonth = await User.countDocuments({ planType: '3_months', isAdmin: { $ne: true } });
+    const oneYear = await User.countDocuments({ planType: '1_year', isAdmin: { $ne: true } });
     
     // Using current settings, estimate minimum revenue generated
     const settings = await AdminSettings.findOne() || { oneMonthPrice: 499, threeMonthsPrice: 1299, oneYearPrice: 3999 };

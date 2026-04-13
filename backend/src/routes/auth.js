@@ -49,7 +49,8 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    const user = await User.findOne({ email });
+    // Explicitly select password since it's set to select: false in the schema
+    const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return res.status(401).json({ error: 'Invalid Admin Credentials' });
     }
@@ -75,7 +76,11 @@ router.post('/login', async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
-    res.json({ user, token });
+    // Remove password from returned user object for security
+    const userObject = user.toObject();
+    delete userObject.password;
+
+    res.json({ user: userObject, token });
   } catch (err) {
     console.error('Login Error:', err);
     res.status(500).json({ error: 'Internal Server Error' });
