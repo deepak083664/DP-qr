@@ -296,115 +296,144 @@ const MyQRs = () => {
                 </div>
             )}
 
-            {/* Edit Modal */}
+            {/* Edit Modal Structural Overhaul */}
             <AnimatePresence>
                 {editingQr && (
-                    <div className="fixed inset-0 z-50 flex flex-col items-center justify-start py-10 px-4 overflow-y-auto">
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center">
+                        {/* Layer 1: Global Fixed Backdrop */}
                         <motion.div 
                             initial={{ opacity: 0 }} 
                             animate={{ opacity: 1 }} 
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm"
+                            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[101]"
                             onClick={() => !isSaving && setEditingQr(null)}
                         />
-                        <motion.div 
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }} 
-                            animate={{ opacity: 1, scale: 1, y: 0 }} 
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="bg-white rounded-3xl shadow-2xl w-full max-w-lg relative z-10 flex flex-col mb-12"
-                        >
-                            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                                <div>
-                                    <h3 className="text-xl font-bold text-slate-900">Edit QR Destination</h3>
-                                    <p className="text-xs text-slate-500 mt-1 uppercase font-semibold">Dynamic Content Update</p>
-                                </div>
-                                <button 
-                                    onClick={() => !isSaving && setEditingQr(null)}
-                                    className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-500"
+
+                        {/* Layer 2: Independent Scroll Surface */}
+                        <div className="fixed inset-0 overflow-y-auto z-[102] pointer-events-none flex flex-col items-center">
+                            <div className="min-h-full py-12 px-4 flex items-start justify-center w-full">
+                                <motion.div 
+                                    initial={{ opacity: 0, scale: 0.95, y: 30 }} 
+                                    animate={{ opacity: 1, scale: 1, y: 0 }} 
+                                    exit={{ opacity: 0, scale: 0.95, y: 30 }}
+                                    className="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg pointer-events-auto flex flex-col relative"
                                 >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
-
-                            <div className="p-6 space-y-6">
-                                <div className="bg-blue-50 text-blue-800 text-sm p-4 rounded-xl border border-blue-100/50">
-                                    <p className="font-semibold">Your QR image stays exactly the same!</p>
-                                    <p className="mt-1 opacity-90 text-xs">Anyone scanning this existing QR code will instantly be redirected to the new content and format you set below.</p>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <label className="text-sm font-semibold text-slate-700">Content Type</label>
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 bg-slate-100 p-1.5 rounded-xl">
-                                        {[
-                                            { id: 'url', icon: LinkIcon, label: 'URL' },
-                                            { id: 'text', icon: Type, label: 'Text' },
-                                            { id: 'image', icon: ImageIcon, label: 'Image' },
-                                            { id: 'pdf', icon: FileText, label: 'PDF' }
-                                        ].map(tab => (
-                                            <button
-                                                key={tab.id}
-                                                onClick={() => { setEditType(tab.id); setEditContent(''); setEditFile(null); }}
-                                                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-medium transition-all ${editType === tab.id ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-900 hover:bg-white/50'}`}
-                                            >
-                                                <tab.icon className="w-3 h-3 shrink-0" /> <span className="text-xs whitespace-nowrap">{tab.label}</span>
-                                            </button>
-                                        ))}
+                                    {/* Header Section (Natural Flow) */}
+                                    <div className="p-6 md:p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-[2rem]">
+                                        <div>
+                                            <h3 className="text-xl md:text-2xl font-bold text-slate-900">Edit QR</h3>
+                                            <p className="text-xs text-slate-500 mt-1 uppercase font-semibold tracking-wider">Dynamic Destination Update</p>
+                                        </div>
+                                        <button 
+                                            onClick={() => !isSaving && setEditingQr(null)}
+                                            className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-400 hover:text-slate-600"
+                                        >
+                                            <X className="w-5 h-5" />
+                                        </button>
                                     </div>
 
-                                    <label className="text-sm font-semibold text-slate-700">
-                                        {editType === 'url' ? 'New Target URL' : 
-                                         editType === 'text' ? 'New Display Text' : 
-                                         `Upload New ${editType.toUpperCase()} File`}
-                                    </label>
-                                    
-                                    {(editType === 'url' || editType === 'text') ? (
-                                        <input 
-                                            type="text" 
-                                            value={editContent}
-                                            onChange={(e) => setEditContent(e.target.value)}
-                                            placeholder={`Enter new ${editType}...`}
-                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 text-slate-900 transition-all placeholder:text-slate-400"
-                                            autoFocus
-                                        />
-                                    ) : (
-                                        <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center gap-3 hover:border-primary/50 transition-colors bg-slate-50 cursor-pointer relative">
-                                            <input 
-                                                type="file" 
-                                                accept={editType === 'image' ? 'image/*' : 'application/pdf'}
-                                                onChange={(e) => setEditFile(e.target.files[0])}
-                                                className="absolute inset-0 opacity-0 cursor-pointer"
-                                            />
-                                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center pointer-events-none">
-                                                <Upload className="w-6 h-6 text-primary" />
-                                            </div>
-                                            <div className="text-center pointer-events-none">
-                                                <span className="text-slate-600 font-medium">Click to select new file</span>
-                                                <p className="text-xs text-slate-400 mt-1">Replacing current content with {editType}</p>
-                                            </div>
-                                            {editFile && <span className="text-sm font-bold text-green-600 mt-2 bg-green-50 px-3 py-1 rounded-md max-w-[200px] truncate">{editFile.name}</span>}
-                                            {(!editFile && editType === editingQr.type) && <span className="text-sm font-medium text-slate-500 mt-2">Currently using existing {editType}</span>}
+                                    {/* Body Section (Natural Flow) */}
+                                    <div className="p-6 md:p-8 space-y-8">
+                                        <div className="bg-blue-50 text-blue-800 text-sm p-5 rounded-2xl border border-blue-100/50 shadow-sm shadow-blue-500/5">
+                                            <p className="font-bold flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
+                                                Immutable QR Image
+                                            </p>
+                                            <p className="mt-2 opacity-90 leading-relaxed text-[11px] sm:text-xs">
+                                                The physical QR pattern will not change. Scanners will instantly be redirected to your new destination once saved.
+                                            </p>
                                         </div>
-                                    )}
-                                </div>
-                            </div>
 
-                            <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 rounded-b-3xl">
-                                <button 
-                                    onClick={() => setEditingQr(null)}
-                                    disabled={isSaving}
-                                    className="px-6 py-2.5 rounded-xl text-slate-600 font-semibold hover:bg-slate-200 transition-colors disabled:opacity-50"
-                                >
-                                    Cancel
-                                </button>
-                                <button 
-                                    onClick={handleSaveEdit}
-                                    disabled={isSaving || ((editType === 'pdf' || editType === 'image') && !editFile && editType !== editingQr.type) || ((editType === 'text' || editType === 'url') && !editContent)}
-                                    className="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold transition-all shadow-md shadow-primary/20 flex items-center gap-2 disabled:opacity-50"
-                                >
-                                    {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Changes'}
-                                </button>
+                                        <div className="flex flex-col gap-5">
+                                            <div>
+                                                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-4">Select Content Type</label>
+                                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-100 p-1.5 rounded-2xl">
+                                                    {[
+                                                        { id: 'url', icon: LinkIcon, label: 'URL' },
+                                                        { id: 'text', icon: Type, label: 'Text' },
+                                                        { id: 'image', icon: ImageIcon, label: 'Image' },
+                                                        { id: 'pdf', icon: FileText, label: 'PDF' }
+                                                    ].map(tab => (
+                                                        <button
+                                                            key={tab.id}
+                                                            onClick={() => { setEditType(tab.id); setEditContent(''); setEditFile(null); }}
+                                                            className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl font-bold transition-all ${editType === tab.id ? 'bg-white text-primary shadow-[0_4px_12px_rgba(0,0,0,0.08)]' : 'text-slate-500 hover:text-slate-900 hover:bg-white/50'}`}
+                                                        >
+                                                            <tab.icon className="w-4 h-4 shrink-0" />
+                                                            <span className="text-[10px]">{tab.label}</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-3">
+                                                    {editType === 'url' ? 'New Destination URL' : 
+                                                     editType === 'text' ? 'New Display Text' : 
+                                                     `Upload ${editType.toUpperCase()} File`}
+                                                </label>
+                                                
+                                                {(editType === 'url' || editType === 'text') ? (
+                                                    <input 
+                                                        type="text" 
+                                                        value={editContent}
+                                                        onChange={(e) => setEditContent(e.target.value)}
+                                                        placeholder={`e.g. ${editType === 'url' ? 'https://google.com' : 'Your text here...'}`}
+                                                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 text-slate-900 transition-all placeholder:text-slate-300 font-medium"
+                                                        autoFocus
+                                                    />
+                                                ) : (
+                                                    <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 flex flex-col items-center justify-center gap-4 hover:border-primary/50 transition-all bg-slate-50 cursor-pointer relative group">
+                                                        <input 
+                                                            type="file" 
+                                                            accept={editType === 'image' ? 'image/*' : 'application/pdf'}
+                                                            onChange={(e) => setEditFile(e.target.files[0])}
+                                                            className="absolute inset-0 opacity-0 cursor-pointer z-[1]"
+                                                        />
+                                                        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                                            <Upload className="w-8 h-8 text-primary" />
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <span className="text-slate-700 font-bold block">Choose a new file</span>
+                                                            <p className="text-[11px] text-slate-400 mt-2 font-medium uppercase tracking-tight">Format: {editType.toUpperCase()}</p>
+                                                        </div>
+                                                        {editFile && (
+                                                            <div className="mt-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl text-xs font-bold border border-emerald-100 flex items-center gap-2 max-w-full">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                                                <span className="truncate">{editFile.name}</span>
+                                                            </div>
+                                                        )}
+                                                        {(!editFile && editType === editingQr.type) && (
+                                                            <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200/50 mt-2">
+                                                                Replacing current {editType}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Footer Section (Natural Flow) */}
+                                    <div className="p-6 md:p-8 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-3 bg-slate-50/50 rounded-b-[2rem]">
+                                        <button 
+                                            onClick={() => setEditingQr(null)}
+                                            disabled={isSaving}
+                                            className="order-2 sm:order-1 flex-1 sm:flex-none px-8 py-3.5 rounded-2xl text-slate-500 font-bold hover:bg-slate-200 transition-all hover:text-slate-700 disabled:opacity-50"
+                                        >
+                                            Discard
+                                        </button>
+                                        <button 
+                                            onClick={handleSaveEdit}
+                                            disabled={isSaving || ((editType === 'pdf' || editType === 'image') && !editFile && editType !== editingQr.type) || ((editType === 'text' || editType === 'url') && !editContent)}
+                                            className="order-1 sm:order-2 flex-[2] sm:flex-none px-10 py-3.5 rounded-2xl bg-primary hover:bg-slate-900 text-white font-bold transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3 disabled:opacity-50 disabled:grayscale active:scale-95"
+                                        >
+                                            {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-4 h-4" /> Apply Changes</>}
+                                        </button>
+                                    </div>
+                                </motion.div>
                             </div>
-                        </motion.div>
+                        </div>
                     </div>
                 )}
             </AnimatePresence>
