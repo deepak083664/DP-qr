@@ -172,13 +172,27 @@ const MyQRs = () => {
     }
 
     return (
-        <div className="max-w-6xl mx-auto px-4 py-12 relative">
+        <div className="max-w-6xl mx-auto px-4 py-8 md:py-12 relative min-h-[80vh]">
+            {/* Plan Header */}
+            <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-900">My Generated <span className="gradient-text">QR Codes</span></h1>
+                    <p className="text-slate-500 mt-1 flex items-center gap-2">
+                        Plan Status: <span className="font-bold text-primary">{user?.isAdmin ? 'ADMIN (PREMIUM)' : (user?.planType ? user.planType.replace('_', ' ').toUpperCase() : 'FREE')}</span>
+                    </p>
+                </div>
+                {(user?.planType === 'free' || !user?.planType) && !user?.isAdmin && (
+                    <Link to="/pricing" className="mt-4 sm:mt-0 inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold py-2.5 px-5 rounded-xl transition-all shadow-md">
+                        <Crown className="w-4 h-4" /> Upgrade to Premium
+                    </Link>
+                )}
+            </div>
+
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-10 text-center"
+                className="mb-10"
             >
-                <h1 className="text-4xl font-bold mb-4">My Generated <span className="gradient-text">QR Codes</span></h1>
                 <p className="text-slate-500">Manage and track your all time generated QR codes here.</p>
             </motion.div>
 
